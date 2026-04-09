@@ -811,8 +811,90 @@ async function gdLoad(){
   }catch(e){gdSetStatus('Load failed: '+e.message,'#D85A30');}
 }
 
+// ── AUTO-SAVE: debounced silent save after every change ───────────────────────
+let gdAutoSaveTimer=null;
+function scheduleAutoSave(){
+  if(!gdReady) return;
+  clearTimeout(gdAutoSaveTimer);
+  gdAutoSaveTimer=setTimeout(async()=>{
+    try{
+      const snap=JSON.stringify({version:3,exportedAt:new Date().toISOString(),countyData,cityData:cityData.filter(c=>!c.fhfc),deprioData},null,2);
+      const folderId=await gdGetOrCreateFolder();
+      const q=`name='${GD_FILE_NAME}' and '${folderId}' in parents and trashed=false`;
+      const existing=await gapi.client.drive.files.list({q,fields:'files(id)',spaces:'drive'});
+      const blob=new Blob([snap],{type:'application/json'});
+      const form=new FormData();
+      if(existing.result.files.length>0){
+        const fid=existing.result.files[0].id;
+        form.append('metadata',new Blob([JSON.stringify({name:GD_FILE_NAME})],{type:'application/json'}));
+        form.append('file',blob);
+        await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fid}?uploadType=multipart`,{method:'PATCH',headers:{Authorization:'Bearer '+gdAccessToken},body:form});
+      } else {
+        form.append('metadata',new Blob([JSON.stringify({name:GD_FILE_NAME,parents:[folderId]})],{type:'application/json'}));
+        form.append('file',blob);
+        await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{Authorization:'Bearer '+gdAccessToken},body:form});
+      }
+      gdSetStatus('Auto-saved ✓ — '+new Date().toLocaleTimeString(),'#1D9E75');
+    }catch(e){ gdSetStatus('Auto-save failed: '+e.message,'#D85A30'); }
+  }, 2000); // 2 second debounce
+}
+
+// Patch all state-mutating functions to trigger auto-save
+const _saveCountyEntry=saveCountyEntry;
+saveCountyEntry=function(){_saveCountyEntry();scheduleAutoSave();};
+const _addDeprioEntry=addDeprioEntry;
+addDeprioEntry=function(){_addDeprioEntry();scheduleAutoSave();};
+const _removeDeprioEntry=removeDeprioEntry;
+removeDeprioEntry=function(i){_removeDeprioEntry(i);scheduleAutoSave();};
+const _saveCityEntry=saveCityEntry;
+saveCityEntry=function(){_saveCityEntry();scheduleAutoSave();};
+const _removeCityEntry=removeCityEntry;
+removeCityEntry=function(i){_removeCityEntry(i);scheduleAutoSave();};
+
+// ── AUTO-LOAD: load from Drive immediately on page open ───────────────────────
+function gdAutoLoad(){
+  if(GD_CLIENT_ID==='YOUR_CLIENT_ID_HERE') return;
+  // Wait for gapi to be ready, then silently sign in and load
+  const tryLoad=()=>{
+    if(!gdTokenClient){ setTimeout(tryLoad,500); return; }
+    // Use a prompt-free token request — will silently succeed if already signed in
+    gdTokenClient.requestAccessToken({prompt:''});
+    // gdTokenClient callback sets gdReady and calls nothing — we hook in separately
+    const origCallback=gdTokenClient.callback;
+    gdTokenClient.callback=(resp)=>{
+      origCallback && origCallback(resp);
+      if(!resp.error && gdReady){
+        // Auto-load silently
+        (async()=>{
+          try{
+            gdSetStatus('Syncing with Drive...','#BA7517');
+            const folderId=await gdGetOrCreateFolder();
+            const q=`name='${GD_FILE_NAME}' and '${folderId}' in parents and trashed=false`;
+            const list=await gapi.client.drive.files.list({q,fields:'files(id,modifiedTime)',spaces:'drive',orderBy:'modifiedTime desc'});
+            if(!list.result.files.length){ gdSetStatus('No Drive data yet — ready to save','#888780'); return; }
+            const fid=list.result.files[0].id;
+            const r=await fetch(`https://www.googleapis.com/drive/v3/files/${fid}?alt=media`,{headers:{Authorization:'Bearer '+gdAccessToken}});
+            const snap=await r.json();
+            if(!snap.countyData){ gdSetStatus('Drive data unreadable','#D85A30'); return; }
+            countyData=snap.countyData||{};deprioData=snap.deprioData||[];
+            seedFromFhfc();Object.assign(countyData,snap.countyData);
+            const manual=(snap.cityData||[]).filter(c=>!c.fhfc);
+            manual.forEach(mc=>{if(!cityData.some(c=>norm(c.county)===norm(mc.county)&&norm(c.city)===norm(mc.city)))cityData.push(mc);});
+            document.getElementById('luDisp').textContent='Synced from Drive: '+(snap.exportedAt?new Date(snap.exportedAt).toLocaleString():'unknown');
+            updateCards();renderCountyTable();renderCityTable();renderDeprioTable();renderPriorityTable();renderMap();
+            gdSetStatus('Synced from Drive ✓','#1D9E75');
+          }catch(e){ gdSetStatus('Auto-load failed: '+e.message,'#D85A30'); }
+        })();
+      }
+    };
+  };
+  setTimeout(tryLoad, 1500);
+}
+
 gdInit();
 updateCards();renderCountyTable();renderCityTable();renderDeprioTable();renderPriorityTable();renderFhfcTable();renderMap();
+// Trigger auto-load after Drive initialises
+setTimeout(gdAutoLoad, 2000);
 </script>
 </body>
 </html>
