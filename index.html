@@ -159,11 +159,6 @@ tbody td{padding:7px 9px;vertical-align:middle}
     <button class="btn" onclick="document.getElementById('snapIn').click()">Import snapshot</button>
     <input type="file" id="snapIn" accept=".json">
   </div>
-  <div class="note-box"><strong>Upload your own county CSV:</strong> columns <code>county</code>, <code>lgao_committed</code> (yes/no), optional <code>notes</code>. <a href="#" id="dlTpl">Download template</a></div>
-  <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileIn').click()">
-    <strong>Click to upload county CSV</strong><p>or drag and drop</p>
-    <input type="file" id="fileIn" accept=".csv">
-  </div>
   <div style="display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap">
     <button class="btn" onclick="exportCSV()">Export results CSV</button>
   </div>
@@ -274,7 +269,7 @@ tbody td{padding:7px 9px;vertical-align:middle}
 <!-- FHFC UNFUNDED -->
 <div id="tab-fhfc" class="panel">
   <div class="note-box">
-    <strong>Source: FHFC RFAs 2024-202, 2025-201, 2025-202.</strong> These applications demonstrated LGAO commitment but were not selected for funding. They are counted as committed on the overview map. Winners from each round are excluded.
+    <strong>Source: RFA 2025-201 and RFA 2025-202.</strong> These applications demonstrated LGAO commitment but were not selected for funding. They are counted as committed on the overview map. Winners from each round are excluded.
     <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--brd);color:var(--txt2)">
       <strong style="color:var(--txt)">Note on RFA 202 series:</strong> The 202 RFA does not carry a resubmittal preference for LGAO — commitments should be treated as single-cycle until reconfirmed.
     </div>
@@ -292,7 +287,7 @@ tbody td{padding:7px 9px;vertical-align:middle}
   </div>
   <div class="tbl-wrap">
     <table>
-      <thead><tr><th>Development name</th><th>County</th><th>LGAO from</th><th>RFA</th><th>Cont. 2024?</th><th>Cont. 2023?</th><th>Status</th></tr></thead>
+      <thead><tr><th>Development name</th><th>County</th><th>LGAO from</th><th>RFA</th><th>County size</th><th>Cont. 2025?</th><th>Cont. 2024?</th><th>Status</th></tr></thead>
       <tbody id="fhfcBody"></tbody>
     </table>
   </div>
@@ -323,7 +318,23 @@ tbody td{padding:7px 9px;vertical-align:middle}
   </div>
 </div>
 
-<div class="tooltip-box" id="ttBox"></div>
+<!-- LGAO DETAIL PANEL -->
+<div id="detailPanel" style="display:none;position:fixed;top:0;right:0;width:340px;height:100vh;background:var(--bg);border-left:1px solid var(--brd);z-index:200;overflow-y:auto;box-shadow:-4px 0 20px rgba(0,0,0,.15)">
+  <div style="padding:1rem;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <div style="font-weight:500;font-size:15px" id="dpCountyName"></div>
+      <div style="font-size:12px;color:var(--txt2)" id="dpCountyStatus"></div>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="btn sm" id="dpEditBtn" onclick="">Edit</button>
+      <button class="btn sm" onclick="closeDetailPanel()">✕</button>
+    </div>
+  </div>
+  <div id="dpBody" style="padding:1rem"></div>
+</div>
+<div id="detailOverlay" onclick="closeDetailPanel()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:199"></div>
+
+
 
 </div><!-- .wrap -->
 
@@ -494,7 +505,7 @@ function renderCountyTable(){
     const fh=r.rec.flag==='yes'?'<span class="badge flag">Follow-up</span>':'—';
     const fd=r.rec.followDate?`<br><span style="font-size:11px;color:var(--txt2)">${r.rec.followDate}</span>`:'';
     const nt=r.rec.notes?`<span style="font-size:12px;color:var(--txt2)">${r.rec.notes}</span>`:'—';
-    return`<tr><td style="color:var(--txt2);font-size:12px">${r.idx}</td><td style="font-weight:500">${r.name}${ft}</td><td>${r.rec.status==='yes'?'Yes':r.rec.status==='no'?'No':'—'}</td><td>${sb}</td><td>${pBadge(r.rec.priority)}</td><td>${fh}${fd}</td><td style="max-width:170px">${nt}</td><td><button class="btn sm" onclick="openEditCounty('${r.name}')">Edit</button></td></tr>`;
+    return`<tr style="cursor:pointer" onclick="openDetailPanel('${r.name}')"><td style="color:var(--txt2);font-size:12px">${r.idx}</td><td style="font-weight:500">${r.name}${ft}</td><td>${r.rec.status==='yes'?'Yes':r.rec.status==='no'?'No':'—'}</td><td>${sb}</td><td>${pBadge(r.rec.priority)}</td><td>${fh}${fd}</td><td style="max-width:170px">${nt}</td><td><span style="font-size:11px;color:var(--txt2)">&#8250; details</span></td></tr>`;
   }).join('');
 }
 
@@ -527,7 +538,7 @@ function renderPriorityTable(){
   const rows=FL_COUNTIES.filter(c=>!SMALL_COUNTIES.has(c)).map((c,i)=>({idx:i+1,name:c,rec:countyData[norm(c)]||{}}))
     .filter(r=>!q||norm(r.name).includes(q))
     .filter(r=>f==='all'||(f==='flag'?r.rec.flag==='yes':String(r.rec.priority||'')===f));
-  document.getElementById('pBody').innerHTML=rows.map(r=>`<tr><td style="color:var(--txt2);font-size:12px">${r.idx}</td><td style="font-weight:500">${r.name}</td><td>${sBadge(r.rec.status)}</td><td>${pBadge(r.rec.priority)}</td><td>${r.rec.flag==='yes'?'<span class="badge flag">Flagged</span>':'—'}</td><td style="font-size:12px;color:var(--txt2)">${r.rec.followDate||'—'}</td><td style="max-width:150px;font-size:12px;color:var(--txt2)">${r.rec.notes||'—'}</td><td><button class="btn sm" onclick="openEditCounty('${r.name}')">Edit</button></td></tr>`).join('');
+  document.getElementById('pBody').innerHTML=rows.map(r=>`<tr style="cursor:pointer" onclick="openDetailPanel('${r.name}')"><td style="color:var(--txt2);font-size:12px">${r.idx}</td><td style="font-weight:500">${r.name}</td><td>${sBadge(r.rec.status)}</td><td>${pBadge(r.rec.priority)}</td><td>${r.rec.flag==='yes'?'<span class="badge flag">Flagged</span>':'—'}</td><td style="font-size:12px;color:var(--txt2)">${r.rec.followDate||'—'}</td><td style="max-width:150px;font-size:12px;color:var(--txt2)">${r.rec.notes||'—'}</td><td><span style="font-size:11px;color:var(--txt2)">&#8250; details</span></td></tr>`).join('');
 }
 
 function renderFhfcTable(){
@@ -536,19 +547,22 @@ function renderFhfcTable(){
   const rows=FHFC_UNFUNDED.filter(r=>{
     if(q&&!norm(r.name).includes(q)&&!norm(r.county).includes(q)&&!norm(r.lgaoFrom).includes(q)) return false;
     if(f==='2025-201'||f==='2024-202'||f==='2025-202') return r.rfa===f;
-    if(f==='prior') return r.prior1yr==='Y'||r.prior2yr==='Y';
-    if(f==='new') return r.prior1yr==='N'&&r.prior2yr==='N';
+    if(f==='prior') return r.prior2025==='Y'||r.prior2024==='Y';
+    if(f==='new') return r.prior2025==='N'&&r.prior2024==='N';
     return true;
   });
   document.getElementById('fhfcBody').innerHTML=!rows.length
-    ?'<tr><td colspan="7" style="padding:1rem;text-align:center;color:var(--txt2)">No results.</td></tr>'
+    ?'<tr><td colspan="8" style="padding:1rem;text-align:center;color:var(--txt2)">No results.</td></tr>'
     :rows.map(r=>{
       const is202=r.rfa&&r.rfa.includes('202');
-      const hp=r.prior1yr==='Y'||r.prior2yr==='Y';
-      const tag=is202?'<span class="badge na">Large county</span>':(hp?'<span class="badge dep1">Prior support</span>':'<span class="badge new">New this round</span>');
-      const y24=is202?'<span style="color:var(--txt2);font-size:11px">n/a</span>':(r.prior1yr==='Y'?'<span class="badge yes">Yes</span>':'<span class="badge no">No</span>');
-      const y23=is202?'<span style="color:var(--txt2);font-size:11px">n/a</span>':(r.prior2yr==='Y'?'<span class="badge yes">Yes</span>':'<span class="badge no">No</span>');
-      return`<tr><td style="font-weight:500">${r.name}</td><td>${r.county}</td><td style="color:var(--txt2)">${r.lgaoFrom}</td><td style="font-size:11px;color:var(--txt2)">${r.rfa||'—'}</td><td>${y24}</td><td>${y23}</td><td>${tag} <span class="badge unfunded">Unfunded</span></td></tr>`;
+      const hp=r.prior2025==='Y'||r.prior2024==='Y';
+      const sizeBadge=is202
+        ?'<span class="badge na">Large</span>'
+        :`<span class="badge ${r.size==='M'?'new':'na'}">${r.size==='M'?'Medium':'Small'}</span>`;
+      const tag=is202?'<span class="badge na">Single-cycle</span>':(hp?'<span class="badge dep1">Prior support</span>':'<span class="badge new">New this round</span>');
+      const y25=is202?'<span style="color:var(--txt2);font-size:11px">n/a</span>':(r.prior2025==='Y'?'<span class="badge yes">Yes</span>':'<span class="badge no">No</span>');
+      const y24=is202?'<span style="color:var(--txt2);font-size:11px">n/a</span>':(r.prior2024==='Y'?'<span class="badge yes">Yes</span>':'<span class="badge no">No</span>');
+      return`<tr><td style="font-weight:500">${r.name}</td><td>${r.county}</td><td style="color:var(--txt2)">${r.lgaoFrom}</td><td style="font-size:11px;color:var(--txt2)">${r.rfa||'—'}</td><td>${sizeBadge}</td><td>${y25}</td><td>${y24}</td><td>${tag} <span class="badge unfunded">Unfunded</span></td></tr>`;
     }).join('');
 }
 
@@ -595,7 +609,96 @@ function saveCityEntry(){
   closeCityModal();stampUpdated();renderCityTable();
 }
 
-function exportSnapshot(){
+function openDetailPanel(name){
+  const rec=countyData[norm(name)]||{};
+  const depSet=new Set(deprioData.filter(d=>!d.city||isUnincorp(d.lgaoFrom)).map(d=>norm(d.county)));
+  const isD=depSet.has(norm(name));
+  const status=isD?'Deprioritized':rec.status==='yes'?'LGAO Committed':rec.status==='no'?'No LGAO Activity':'No data';
+
+  document.getElementById('dpCountyName').textContent=name+' County';
+  document.getElementById('dpCountyStatus').textContent=status;
+  document.getElementById('dpEditBtn').onclick=()=>{closeDetailPanel();openEditCounty(name);};
+
+  // Build panel content
+  const fhfcApps=FHFC_UNFUNDED.filter(f=>norm(f.county)===norm(name));
+  const deprioApps=deprioData.filter(d=>norm(d.county)===norm(name));
+  const cityEntries=cityData.filter(c=>norm(c.county)===norm(name)&&!c.fhfc);
+
+  let h='';
+
+  // LGAO applications on file
+  if(fhfcApps.length){
+    h+=`<div style="margin-bottom:1rem">
+      <div style="font-size:11px;font-weight:500;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">LGAO Applications on File</div>`;
+    fhfcApps.forEach(a=>{
+      const is202=a.rfa&&a.rfa.includes('202');
+      const hp=a.prior2025==='Y'||a.prior2024==='Y';
+      const tag=is202?'<span class="badge na" style="font-size:10px">Single-cycle</span>':(hp?'<span class="badge dep1" style="font-size:10px">Prior support</span>':'<span class="badge new" style="font-size:10px">New 2025</span>');
+      h+=`<div style="background:var(--bg2);border-radius:var(--rad);padding:10px 12px;margin-bottom:6px">
+        <div style="font-weight:500;font-size:13px;margin-bottom:4px">${a.name}</div>
+        <div style="font-size:12px;color:var(--txt2);margin-bottom:4px">LGAO from: <strong style="color:var(--txt)">${a.lgaoFrom}</strong></div>
+        <div style="font-size:12px;color:var(--txt2);margin-bottom:6px">RFA: ${a.rfa} &nbsp;|&nbsp; Size: ${is202?'Large':'Medium'}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">${tag} <span class="badge unfunded" style="font-size:10px">Unfunded</span></div>
+      </div>`;
+    });
+    h+='</div>';
+  }
+
+  // Deprioritized entries
+  if(deprioApps.length){
+    h+=`<div style="margin-bottom:1rem">
+      <div style="font-size:11px;font-weight:500;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Deprioritized</div>`;
+    deprioApps.forEach(d=>{
+      h+=`<div style="background:var(--bg2);border-radius:var(--rad);padding:10px 12px;margin-bottom:6px;border-left:3px solid #EF9F27">
+        <div style="font-weight:500;font-size:13px;margin-bottom:4px">${d.city||'County-level'}</div>
+        <div style="font-size:12px;color:var(--txt2);margin-bottom:2px">LGAO from: <strong style="color:var(--txt)">${d.lgaoFrom||'—'}</strong></div>
+        <div style="font-size:12px;color:var(--txt2);margin-bottom:2px">Award date: ${d.date||'—'} &nbsp;|&nbsp; ${d.years} year${d.years==='1'?'':'s'}</div>
+        <div style="font-size:12px;color:var(--txt2)">Re-eligible: ${reDate(d.date,d.years)}</div>
+        ${d.notes?`<div style="font-size:11px;color:var(--txt2);margin-top:6px;font-style:italic">${d.notes}</div>`:''}
+      </div>`;
+    });
+    h+='</div>';
+  }
+
+  // Manual city entries
+  if(cityEntries.length){
+    h+=`<div style="margin-bottom:1rem">
+      <div style="font-size:11px;font-weight:500;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">City Entries</div>`;
+    cityEntries.forEach(c=>{
+      h+=`<div style="background:var(--bg2);border-radius:var(--rad);padding:10px 12px;margin-bottom:6px">
+        <div style="font-weight:500;font-size:13px">${c.city}</div>
+        <div style="font-size:12px;color:var(--txt2)">${c.status==='yes'?'<span class="badge yes">Committed</span>':'<span class="badge no">No activity</span>'}</div>
+        ${c.notes?`<div style="font-size:11px;color:var(--txt2);margin-top:4px">${c.notes}</div>`:''}
+      </div>`;
+    });
+    h+='</div>';
+  }
+
+  // Notes & priority
+  if(rec.notes||rec.priority||rec.flag==='yes'){
+    h+=`<div style="margin-bottom:1rem">
+      <div style="font-size:11px;font-weight:500;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Team Notes</div>
+      <div style="background:var(--bg2);border-radius:var(--rad);padding:10px 12px">
+        ${rec.priority?`<div style="font-size:12px;margin-bottom:4px">Priority: ${['','High','Medium','Low'][rec.priority]}</div>`:''}
+        ${rec.flag==='yes'?`<div style="font-size:12px;margin-bottom:4px;color:#185FA5">Flagged for follow-up${rec.followDate?' — '+rec.followDate:''}</div>`:''}
+        ${rec.notes?`<div style="font-size:12px;color:var(--txt2)">${rec.notes}</div>`:''}
+      </div>
+    </div>`;
+  }
+
+  if(!h) h=`<div style="font-size:13px;color:var(--txt2);text-align:center;padding:2rem 0">No LGAO activity on file for ${name} County.</div>`;
+
+  document.getElementById('dpBody').innerHTML=h;
+  document.getElementById('detailPanel').style.display='block';
+  document.getElementById('detailOverlay').style.display='block';
+}
+
+function closeDetailPanel(){
+  document.getElementById('detailPanel').style.display='none';
+  document.getElementById('detailOverlay').style.display='none';
+}
+
+
   const snap={version:3,exportedAt:new Date().toISOString(),countyData,cityData:cityData.filter(c=>!c.fhfc),deprioData};
   const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(snap,null,2));a.download='fl_lgao_snapshot_'+new Date().toISOString().slice(0,10)+'.json';a.click();
 }
