@@ -1,92 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FL LGAO Gap Finder — Green Mills Group</title>
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Florida LGAO loan gap finder — Green Mills Group</h2>
 <style>
-/* ── CSS reset + design tokens (replaces claude.ai CSS variables) ── */
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#ffffff;--bg2:#f5f5f3;--bg3:#efefec;
-  --txt:#1a1a18;--txt2:#5f5e5a;--txt3:#888780;
-  --brd:rgba(0,0,0,0.12);--brd2:rgba(0,0,0,0.22);
-  --rad:8px;--rad-lg:12px;
-  --green:#1D9E75;--red:#D85A30;--amber:#EF9F27;--blue:#378ADD;--gray:#B4B2A9;--purple:#534AB7;
-}
-@media(prefers-color-scheme:dark){
-  :root{
-    --bg:#1e1e1c;--bg2:#2a2a28;--bg3:#333331;
-    --txt:#e8e6e0;--txt2:#a8a6a0;--txt3:#6e6c68;
-    --brd:rgba(255,255,255,0.10);--brd2:rgba(255,255,255,0.20);
-  }
-}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--txt);background:var(--bg3);min-height:100vh;padding:1rem}
-.wrap{max-width:1100px;margin:0 auto;background:var(--bg);border-radius:var(--rad-lg);border:1px solid var(--brd);padding:1.25rem}
-.hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--brd);margin-bottom:1.25rem;flex-wrap:wrap;gap:10px}
+body{font-family:var(--font-sans,sans-serif);color:var(--color-text-primary);background:transparent;padding:0}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 0 12px;border-bottom:1px solid var(--color-border-tertiary);margin-bottom:1.25rem;flex-wrap:wrap;gap:10px}
 .logo{display:flex;align-items:center;gap:10px}
 .logo-icon{width:44px;height:44px;flex-shrink:0}
-.logo-text h1{font-size:17px;font-weight:500;color:var(--txt);line-height:1.2}
+.logo-text h1{font-size:17px;font-weight:500;color:var(--color-text-primary);line-height:1.2}
 .logo-text p{font-size:11px;font-weight:500;color:#3B6D11;letter-spacing:.06em;text-transform:uppercase}
 .hdr-right{text-align:right}
 .hdr-right .tool-title{font-size:15px;font-weight:500}
-.hdr-right .last-updated{font-size:11px;color:var(--txt2);margin-top:2px}
-.tabs{display:flex;gap:4px;margin-bottom:1.25rem;border-bottom:1px solid var(--brd);flex-wrap:wrap}
-.tab{padding:7px 13px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--txt2);border-bottom:2px solid transparent;margin-bottom:-1px}
-.tab.active{color:var(--txt);border-bottom:2px solid var(--txt)}
-.tab:hover:not(.active){color:var(--txt)}
+.hdr-right .last-updated{font-size:11px;color:var(--color-text-secondary);margin-top:2px}
+.tabs{display:flex;gap:4px;margin-bottom:1.25rem;border-bottom:1px solid var(--color-border-tertiary);flex-wrap:wrap}
+.tab{padding:7px 13px;font-size:13px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--color-text-secondary);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.active{color:var(--color-text-primary);border-bottom:2px solid var(--color-text-primary)}
+.tab:hover:not(.active){color:var(--color-text-primary)}
 .panel{display:none}.panel.active{display:block}
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:10px;margin-bottom:1.25rem}
-.card{background:var(--bg2);border-radius:var(--rad);padding:11px 13px}
-.card .lbl{font-size:11px;color:var(--txt2);margin-bottom:3px}
+.card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:11px 13px}
+.card .lbl{font-size:11px;color:var(--color-text-secondary);margin-bottom:3px}
 .card .val{font-size:21px;font-weight:500}
-.val.miss{color:var(--red)}.val.ok{color:var(--green)}.val.dep{color:#BA7517}.val.flag{color:var(--blue)}
-.upload-zone{border:1px dashed var(--brd2);border-radius:var(--rad-lg);padding:1.1rem;text-align:center;margin-bottom:.9rem;cursor:pointer}
-.upload-zone:hover{background:var(--bg2)}
-.upload-zone p{font-size:12px;color:var(--txt2);margin-top:3px}
-.note-box{font-size:12px;color:var(--txt2);margin-bottom:.9rem;padding:9px 12px;background:var(--bg2);border-radius:var(--rad)}
-.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 7px;border-radius:var(--rad)}
+.val.miss{color:#D85A30}.val.ok{color:#1D9E75}.val.dep{color:#BA7517}.val.flag{color:#185FA5}
+.note-box{font-size:12px;color:var(--color-text-secondary);margin-bottom:.9rem;padding:9px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)}
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 7px;border-radius:var(--border-radius-md)}
 .badge.no{background:#FAECE7;color:#993C1D}
 .badge.yes{background:#EAF3DE;color:#3B6D11}
 .badge.dep1{background:#FAEEDA;color:#854F0B}
 .badge.dep2{background:#FAC775;color:#633806}
-.badge.na{background:var(--bg2);color:var(--txt2)}
+.badge.na{background:var(--color-background-secondary);color:var(--color-text-secondary)}
 .badge.flag{background:#E6F1FB;color:#185FA5}
 .badge.unfunded{background:#EEEDFE;color:#3C3489}
 .badge.sel{background:#EAF3DE;color:#3B6D11}
 .badge.new{background:#E6F1FB;color:#0C447C}
-.badge.fhfc{background:#EEEDFE;color:var(--purple);font-size:10px}
-.prio{display:inline-flex;align-items:center;justify-content:center;width:28px;height:22px;border-radius:var(--rad);font-size:12px;font-weight:500}
-.prio.p1{background:#FAECE7;color:#993C1D}.prio.p2{background:#FAEEDA;color:#854F0B}.prio.p3{background:#EAF3DE;color:#3B6D11}.prio.p0{background:var(--bg2);color:var(--txt2)}
+.badge.fhfc{background:#EEEDFE;color:#534AB7;font-size:10px}
+.badge.med{background:#E6F1FB;color:#0C447C}
+.prio{display:inline-flex;align-items:center;justify-content:center;width:28px;height:22px;border-radius:var(--border-radius-md);font-size:12px;font-weight:500}
+.prio.p1{background:#FAECE7;color:#993C1D}.prio.p2{background:#FAEEDA;color:#854F0B}.prio.p3{background:#EAF3DE;color:#3B6D11}.prio.p0{background:var(--color-background-secondary);color:var(--color-text-secondary)}
 .controls{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
-input,select,textarea{height:34px;padding:0 10px;font-size:13px;border:1px solid var(--brd2);border-radius:var(--rad);background:var(--bg);color:var(--txt);font-family:inherit}
-textarea{height:auto;min-height:58px;padding:8px 10px;resize:vertical}
-input[type=file]{display:none}
+.controls input,.controls select{height:34px;padding:0 10px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary)}
 .controls input{flex:1;min-width:140px}
 .tbl-wrap{overflow-x:auto;margin-bottom:1rem}
 table{width:100%;border-collapse:collapse;font-size:13px}
-thead th{text-align:left;padding:7px 9px;border-bottom:1px solid var(--brd);font-weight:500;color:var(--txt2);white-space:nowrap}
-tbody tr{border-bottom:1px solid var(--brd)}
-tbody tr:hover{background:var(--bg2)}
+thead th{text-align:left;padding:7px 9px;border-bottom:1px solid var(--color-border-tertiary);font-weight:500;color:var(--color-text-secondary);white-space:nowrap}
+tbody tr{border-bottom:0.5px solid var(--color-border-tertiary)}
+tbody tr:hover{background:var(--color-background-secondary)}
+tbody tr.clickable{cursor:pointer}
 tbody td{padding:7px 9px;vertical-align:middle}
-.btn{height:34px;padding:0 13px;font-size:13px;border:1px solid var(--brd2);border-radius:var(--rad);background:transparent;color:var(--txt);cursor:pointer;font-family:inherit}
-.btn:hover{background:var(--bg2)}
+.btn{height:34px;padding:0 13px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:transparent;color:var(--color-text-primary);cursor:pointer}
+.btn:hover{background:var(--color-background-secondary)}
+.btn.primary{background:var(--color-background-secondary)}
 .btn.sm{height:27px;padding:0 9px;font-size:12px}
 .btn.green{background:#3B6D11;color:#fff;border-color:#3B6D11}
 .btn.green:hover{background:#27500A}
-.map-wrap{margin-bottom:1.25rem;border-radius:var(--rad-lg);overflow:hidden;border:1px solid var(--brd)}
-.legend{display:flex;gap:12px;font-size:12px;color:var(--txt2);margin-bottom:9px;flex-wrap:wrap;align-items:center}
+.map-wrap{margin-bottom:1.25rem;border-radius:var(--border-radius-lg);overflow:hidden;border:0.5px solid var(--color-border-tertiary)}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--color-text-secondary);margin-bottom:9px;flex-wrap:wrap;align-items:center}
 .legend span{display:flex;align-items:center;gap:4px}
 .legend i{width:12px;height:12px;border-radius:2px;display:inline-block}
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:center;justify-content:center}
 .modal-bg.open{display:flex}
-.modal{background:var(--bg);border-radius:var(--rad-lg);border:1px solid var(--brd);padding:1.1rem;width:min(500px,92vw);max-height:82vh;overflow-y:auto}
+.modal{background:var(--color-background-primary);border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-secondary);padding:1.1rem;width:min(500px,92vw);max-height:82vh;overflow-y:auto}
 .modal h3{font-size:15px;font-weight:500;margin-bottom:.9rem}
 .field{margin-bottom:11px}
-.field label{display:block;font-size:12px;color:var(--txt2);margin-bottom:3px}
-.field input,.field select,.field textarea{width:100%}
+.field label{display:block;font-size:12px;color:var(--color-text-secondary);margin-bottom:3px}
+.field input,.field select,.field textarea{width:100%;padding:7px 10px;font-size:13px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary)}
+.field textarea{resize:vertical;min-height:58px}
 .modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:.9rem}
-.dep-form{background:var(--bg2);border-radius:var(--rad-lg);padding:.9rem;margin-bottom:1.25rem}
+.dep-form{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:.9rem;margin-bottom:1.25rem}
 .dep-form h3{font-size:14px;font-weight:500;margin-bottom:11px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 @media(max-width:480px){.form-row{grid-template-columns:1fr}}
@@ -100,13 +78,19 @@ tbody td{padding:7px 9px;vertical-align:middle}
 .tt-dep{margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;color:#9aa3b8}
 .tt-dep-title{font-weight:500;color:#c8cdd8;margin-bottom:4px;font-size:11px}
 .tt-dep-item{display:flex;align-items:baseline;gap:5px;margin-top:3px;line-height:1.4}
-.snap-bar{display:flex;gap:8px;align-items:center;padding:10px 12px;background:var(--bg2);border-radius:var(--rad-lg);margin-bottom:1rem;flex-wrap:wrap}
-.snap-bar p{font-size:12px;color:var(--txt2);flex:1;min-width:160px}
+.snap-bar{display:flex;gap:8px;align-items:center;padding:10px 12px;background:var(--color-background-secondary);border-radius:var(--border-radius-lg);margin-bottom:1rem;flex-wrap:wrap}
+.snap-bar p{font-size:12px;color:var(--color-text-secondary);flex:1;min-width:160px}
+/* Detail panel */
+.detail-panel{display:none;position:fixed;top:0;right:0;width:320px;height:100vh;background:var(--color-background-primary);border-left:0.5px solid var(--color-border-secondary);z-index:200;overflow-y:auto;box-shadow:-4px 0 20px rgba(0,0,0,.15)}
+.detail-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:199}
+.dp-header{padding:1rem;border-bottom:0.5px solid var(--color-border-tertiary);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--color-background-primary)}
+.dp-section{margin-bottom:1rem}
+.dp-section-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.dp-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px;margin-bottom:6px}
+.dp-card.dep{border-left:3px solid #EF9F27}
 </style>
-</head>
-<body>
-<div class="wrap">
 
+<!-- HEADER -->
 <div class="hdr">
   <div class="logo">
     <svg class="logo-icon" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -131,8 +115,8 @@ tbody td{padding:7px 9px;vertical-align:middle}
   <button class="tab" onclick="switchTab('counties')">County table</button>
   <button class="tab" onclick="switchTab('cities')">City breakdown</button>
   <button class="tab" onclick="switchTab('deprio')">Deprioritized</button>
-  <button class="tab" onclick="switchTab('priority')">Priority &amp; follow-up</button>
-  <button class="tab" onclick="switchTab('fhfc')">FHFC unfunded <span id="fhfcCnt" style="font-size:11px;background:#EEEDFE;color:#3C3489;border-radius:10px;padding:1px 6px;margin-left:4px">36</span></button>
+  <button class="tab" onclick="switchTab('priority')">Priority & follow-up</button>
+  <button class="tab" onclick="switchTab('fhfc')">FHFC unfunded <span id="fhfcCnt" style="font-size:11px;background:#EEEDFE;color:#3C3489;border-radius:10px;padding:1px 6px;margin-left:4px">35</span></button>
 </div>
 
 <!-- OVERVIEW -->
@@ -146,20 +130,18 @@ tbody td{padding:7px 9px;vertical-align:middle}
     <div class="card"><div class="lbl">Follow-up flagged</div><div class="val flag" id="cFlag">—</div></div>
   </div>
   <div class="snap-bar">
-    <p>Sync with your shared Google Drive folder so your whole team stays in sync.</p>
+    <p>Sync with your shared Google Drive folder.</p>
     <button class="btn green" onclick="gdSave()">&#9729; Save to Drive</button>
     <button class="btn" onclick="gdLoad()">&#9729; Load from Drive</button>
-    <span id="gdStatus" style="font-size:12px;color:var(--txt2);flex:1"></span>
+    <span id="gdStatus" style="font-size:12px;color:var(--color-text-secondary);flex:1"></span>
   </div>
-  <div class="snap-bar" style="margin-top:-6px;border:1px solid #3B6D11">
-    <p style="color:var(--txt)"><strong>Push updates to live site</strong> — after any tool changes, click this to update GitHub Pages instantly.</p>
-    <button class="btn green" id="ghPushBtn" onclick="pushToGitHub()">&#8679; Push to GitHub</button>
-  </div>
+  <div class="snap-bar" style="margin-top:-6px">
+    <p>Or use a local snapshot file.</p>
     <button class="btn" onclick="exportSnapshot()">Export snapshot</button>
     <button class="btn" onclick="document.getElementById('snapIn').click()">Import snapshot</button>
-    <input type="file" id="snapIn" accept=".json">
+    <input type="file" id="snapIn" accept=".json" style="display:none">
   </div>
-  <div style="display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap">
+  <div style="display:flex;gap:8px;margin-bottom:1.25rem">
     <button class="btn" onclick="exportCSV()">Export results CSV</button>
   </div>
   <div class="legend">
@@ -169,9 +151,7 @@ tbody td{padding:7px 9px;vertical-align:middle}
     <span><i style="background:#378ADD"></i> Flagged for follow-up</span>
     <span><i style="background:#D3D1C7"></i> Small county (not tracked)</span>
     <span style="display:flex;align-items:center;gap:4px">
-      <span style="position:relative;width:12px;height:12px;border-radius:2px;flex-shrink:0;overflow:hidden;display:inline-block;background:#1D9E75">
-        <span style="position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(186,117,23,.65) 3px,rgba(186,117,23,.65) 5px)"></span>
-      </span>
+      <span style="position:relative;width:12px;height:12px;border-radius:2px;flex-shrink:0;overflow:hidden;display:inline-block;background:#1D9E75"><span style="position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 3px,rgba(186,117,23,.65) 3px,rgba(186,117,23,.65) 5px)"></span></span>
       <span style="width:8px;height:8px;border-radius:2px;background:#EF9F27;flex-shrink:0;display:inline-block"></span>
       City deprioritized within county
     </span>
@@ -203,9 +183,9 @@ tbody td{padding:7px 9px;vertical-align:middle}
 <!-- CITY BREAKDOWN -->
 <div id="tab-cities" class="panel">
   <div class="note-box">CSV: <code>county</code>, <code>city</code>, <code>lgao_committed</code>, optional <code>notes</code>. <a href="#" id="dlCityTpl">Download template</a></div>
-  <div class="upload-zone" onclick="document.getElementById('cityFileIn').click()">
-    <strong>Click to upload city CSV</strong><p>county, city, lgao_committed, notes</p>
-    <input type="file" id="cityFileIn" accept=".csv">
+  <div style="border:1px dashed var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:1.1rem;text-align:center;margin-bottom:.9rem;cursor:pointer" onclick="document.getElementById('cityFileIn').click()">
+    <strong>Click to upload city CSV</strong><p style="font-size:12px;color:var(--color-text-secondary);margin-top:3px">county, city, lgao_committed, notes</p>
+    <input type="file" id="cityFileIn" accept=".csv" style="display:none">
   </div>
   <div class="controls">
     <input type="text" id="citySrch" placeholder="Search county or city..." oninput="renderCityTable()">
@@ -224,7 +204,7 @@ tbody td{padding:7px 9px;vertical-align:middle}
 
 <!-- DEPRIORITIZED -->
 <div id="tab-deprio" class="panel">
-  <p style="font-size:13px;color:var(--txt2);margin-bottom:1rem"><strong>County-level</strong> (or unincorporated LGAO) entries color the whole county orange. <strong>City-level</strong> entries show a stripe pattern on the county.</p>
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem"><strong>County-level</strong> (or unincorporated LGAO) entries color the whole county orange. <strong>City-level</strong> entries show a stripe pattern.</p>
   <div class="dep-form">
     <h3>Add deprioritized site</h3>
     <div class="form-row">
@@ -237,7 +217,7 @@ tbody td{padding:7px 9px;vertical-align:middle}
       <div class="field"><label>Deprioritized for</label><select id="depYears"><option value="1">1 year</option><option value="2">2 years</option></select></div>
     </div>
     <div class="field"><label>Notes</label><textarea id="depNotes"></textarea></div>
-    <button class="btn" onclick="addDeprioEntry()">Add entry</button>
+    <button class="btn primary" onclick="addDeprioEntry()">Add entry</button>
   </div>
   <div class="tbl-wrap">
     <table>
@@ -249,7 +229,7 @@ tbody td{padding:7px 9px;vertical-align:middle}
 
 <!-- PRIORITY -->
 <div id="tab-priority" class="panel">
-  <p style="font-size:13px;color:var(--txt2);margin-bottom:1rem">Assign priority (1=high, 2=medium, 3=low) and flag counties for follow-up outreach.</p>
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem">Assign priority (1=high, 2=medium, 3=low) and flag counties for follow-up. Click any row to see full LGAO detail.</p>
   <div class="controls">
     <input type="text" id="pSrch" placeholder="Search county..." oninput="renderPriorityTable()">
     <select id="pFilt" onchange="renderPriorityTable()">
@@ -270,8 +250,8 @@ tbody td{padding:7px 9px;vertical-align:middle}
 <div id="tab-fhfc" class="panel">
   <div class="note-box">
     <strong>Source: RFA 2025-201 and RFA 2025-202.</strong> These applications demonstrated LGAO commitment but were not selected for funding. They are counted as committed on the overview map. Winners from each round are excluded.
-    <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--brd);color:var(--txt2)">
-      <strong style="color:var(--txt)">Note on RFA 202 series:</strong> The 202 RFA does not carry a resubmittal preference for LGAO — commitments should be treated as single-cycle until reconfirmed.
+    <div style="margin-top:6px;padding-top:6px;border-top:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)">
+      <strong style="color:var(--color-text-primary)">Note on RFA 202 series:</strong> The 202 RFA does not carry a resubmittal preference for LGAO — commitments should be treated as single-cycle until reconfirmed.
     </div>
   </div>
   <div class="controls">
@@ -291,7 +271,7 @@ tbody td{padding:7px 9px;vertical-align:middle}
       <tbody id="fhfcBody"></tbody>
     </table>
   </div>
-  <p style="font-size:12px;color:var(--txt2);margin-top:.75rem">Source: <a href="https://www.floridahousing.org/programs/developers-multifamily-programs/competitive/2025/2025-201" target="_blank">FHFC RFA 2025-201</a></p>
+  <p style="font-size:12px;color:var(--color-text-secondary);margin-top:.75rem">Source: <a href="https://www.floridahousing.org/programs/developers-multifamily-programs/competitive/2025/2025-201" target="_blank">FHFC RFA 2025-201</a></p>
 </div>
 
 <!-- MODALS -->
@@ -304,7 +284,7 @@ tbody td{padding:7px 9px;vertical-align:middle}
     <div class="field"><label>Flag for follow-up</label><select id="mFlag"><option value="no">No</option><option value="yes">Yes</option></select></div>
     <div class="field"><label>Follow-up date</label><input type="date" id="mFollowDate"></div>
     <div class="field"><label>Notes</label><textarea id="mNotes"></textarea></div>
-    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveCountyEntry()">Save</button></div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" onclick="saveCountyEntry()">Save</button></div>
   </div>
 </div>
 <div class="modal-bg" id="cityModal">
@@ -314,38 +294,33 @@ tbody td{padding:7px 9px;vertical-align:middle}
     <div class="field"><label>City / area name</label><input type="text" id="cmCity"></div>
     <div class="field"><label>LGAO committed</label><select id="cmStatus"><option value="">Unknown</option><option value="yes">Yes</option><option value="no">No</option></select></div>
     <div class="field"><label>Notes</label><textarea id="cmNotes"></textarea></div>
-    <div class="modal-footer"><button class="btn" onclick="closeCityModal()">Cancel</button><button class="btn" onclick="saveCityEntry()">Save</button></div>
+    <div class="modal-footer"><button class="btn" onclick="closeCityModal()">Cancel</button><button class="btn primary" onclick="saveCityEntry()">Save</button></div>
   </div>
 </div>
 
-<!-- LGAO DETAIL PANEL -->
-<div id="detailPanel" style="display:none;position:fixed;top:0;right:0;width:340px;height:100vh;background:var(--bg);border-left:1px solid var(--brd);z-index:200;overflow-y:auto;box-shadow:-4px 0 20px rgba(0,0,0,.15)">
-  <div style="padding:1rem;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center">
+<!-- DETAIL PANEL (slide-in) -->
+<div class="detail-panel" id="detailPanel">
+  <div class="dp-header">
     <div>
-      <div style="font-weight:500;font-size:15px" id="dpCountyName"></div>
-      <div style="font-size:12px;color:var(--txt2)" id="dpCountyStatus"></div>
+      <div style="font-weight:500;font-size:15px" id="dpName"></div>
+      <div style="font-size:12px;color:var(--color-text-secondary)" id="dpStatus"></div>
     </div>
     <div style="display:flex;gap:6px">
-      <button class="btn sm" id="dpEditBtn" onclick="">Edit</button>
-      <button class="btn sm" onclick="closeDetailPanel()">✕</button>
+      <button class="btn sm" id="dpEditBtn">Edit</button>
+      <button class="btn sm" onclick="closeDetail()">✕</button>
     </div>
   </div>
   <div id="dpBody" style="padding:1rem"></div>
 </div>
-<div id="detailOverlay" onclick="closeDetailPanel()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.2);z-index:199"></div>
+<div class="detail-overlay" id="detailOverlay" onclick="closeDetail()"></div>
 
-
-
-</div><!-- .wrap -->
+<div class="tooltip-box" id="ttBox"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
 <script>
-// ── PASTE YOUR GOOGLE CREDENTIALS HERE AFTER SETUP ──────────────────────────
-const GD_CLIENT_ID = '641550817325-i4dpffvg9lfuj8imesahahnt98tq4kre.apps.googleusercontent.com';
-const GD_API_KEY   = 'AIzaSyCmuCqjb57Hn_A3yUrpm7moQR1uHkYIv2A';
-// ────────────────────────────────────────────────────────────────────────────
-
+const GD_CLIENT_ID='641550817325-i4dpffvg9lfuj8imesahahnt98tq4kre.apps.googleusercontent.com';
+const GD_API_KEY='AIzaSyCmuCqjb57Hn_A3yUrpm7moQR1uHkYIv2A';
 const GD_SCOPES='https://www.googleapis.com/auth/drive.file';
 const GD_FILE_NAME='fl_lgao_snapshot.json';
 const GD_FOLDER_NAME='LGAO Gap Finder';
@@ -364,48 +339,43 @@ const FHFC_SELECTED_LGAO=[
   {name:"Longwood Gardens",county:"Citrus",lgaoFrom:"Inverness",app:"2026-196C"},
 ];
 
-const FHFC_UNFUNDED_201=[
-  {name:"Legacy Village 2",county:"Manatee",lgaoFrom:"Unincorporated Manatee County",prior1yr:"N",prior2yr:"N",rfa:"2025-201"},
-  {name:"The Fountains at Hidden Lake Phase II",county:"Citrus",lgaoFrom:"Crystal River",prior1yr:"N",prior2yr:"N",rfa:"2025-201"},
-  {name:"Merrillwood Apartments",county:"Alachua",lgaoFrom:"Alachua",prior1yr:"N",prior2yr:"N",rfa:"2025-201"},
-  {name:"Westside Phase II",county:"Volusia",lgaoFrom:"New Smyrna Beach",prior1yr:"Y",prior2yr:"Y",rfa:"2025-201"},
-  {name:"Rockledge Apartments",county:"Brevard",lgaoFrom:"Rockledge",prior1yr:"N",prior2yr:"N",rfa:"2025-201"},
-  {name:"The Palms at Spring Hill",county:"Hernando",lgaoFrom:"Spring Hill",prior1yr:"N",prior2yr:"N",rfa:"2025-201"},
-  {name:"Murdock Square",county:"Charlotte",lgaoFrom:"Port Charlotte",prior1yr:"N",prior2yr:"N",rfa:"2025-201"},
-  {name:"Hope @ Debra Heights",county:"Alachua",lgaoFrom:"Gainesville",prior1yr:"N",prior2yr:"Y",rfa:"2025-201"},
-  {name:"Sugg Redevelopment",county:"Manatee",lgaoFrom:"Bradenton",prior1yr:"N",prior2yr:"N",rfa:"2025-201"},
-  {name:"Magnolia Senior",county:"Leon",lgaoFrom:"Tallahassee",prior1yr:"Y",prior2yr:"N",rfa:"2025-201"},
-  {name:"Renaissance Hall Senior Living",county:"Collier",lgaoFrom:"Unincorporated Collier County",prior1yr:"N",prior2yr:"Y",rfa:"2025-201"},
-  {name:"Madison Oaks West II",county:"Marion",lgaoFrom:"Ocala",prior1yr:"N",prior2yr:"Y",rfa:"2025-201"},
-  {name:"Madison Cove",county:"Volusia",lgaoFrom:"Daytona Beach",prior1yr:"Y",prior2yr:"Y",rfa:"2025-201"},
-  {name:"Pinnacle at Moore's Creek",county:"Saint Lucie",lgaoFrom:"Fort Pierce",prior1yr:"N",prior2yr:"N",rfa:"2025-201"},
-  {name:"Warrington Senior Living",county:"Escambia",lgaoFrom:"Unincorporated Escambia County",prior1yr:"N",prior2yr:"N",rfa:"2025-201"},
-  {name:"Bayside Gardens",county:"Okaloosa",lgaoFrom:"Fort Walton Beach",prior1yr:"Y",prior2yr:"Y",rfa:"2025-201"},
-  {name:"The Beacon at Bayside",county:"Okaloosa",lgaoFrom:"Fort Walton Beach",prior1yr:"Y",prior2yr:"Y",rfa:"2025-201"},
-  {name:"Autumn Palms North Port",county:"Sarasota",lgaoFrom:"North Port",prior1yr:"N",prior2yr:"N",rfa:"2025-201"},
-  {name:"Clermont Ridge Senior Villas II",county:"Lake",lgaoFrom:"Clermont",prior1yr:"Y",prior2yr:"Y",rfa:"2025-201"},
-  {name:"Eagle Village",county:"Manatee",lgaoFrom:"Bradenton",prior1yr:"N",prior2yr:"N",rfa:"2025-201"},
+const FHFC_UNFUNDED=[
+  {name:"Legacy Village 2",county:"Manatee",lgaoFrom:"Unincorporated Manatee County",size:"M",prior2025:"N",prior2024:"N",rfa:"2025-201"},
+  {name:"The Fountains at Hidden Lake Phase II",county:"Citrus",lgaoFrom:"Crystal River",size:"M",prior2025:"N",prior2024:"N",rfa:"2025-201"},
+  {name:"Merrillwood Apartments",county:"Alachua",lgaoFrom:"Alachua",size:"M",prior2025:"N",prior2024:"N",rfa:"2025-201"},
+  {name:"Westside Phase II",county:"Volusia",lgaoFrom:"New Smyrna Beach",size:"M",prior2025:"Y",prior2024:"Y",rfa:"2025-201"},
+  {name:"Rockledge Apartments",county:"Brevard",lgaoFrom:"Rockledge",size:"M",prior2025:"N",prior2024:"N",rfa:"2025-201"},
+  {name:"The Palms at Spring Hill",county:"Hernando",lgaoFrom:"Spring Hill",size:"M",prior2025:"N",prior2024:"N",rfa:"2025-201"},
+  {name:"Murdock Square",county:"Charlotte",lgaoFrom:"Port Charlotte",size:"M",prior2025:"N",prior2024:"N",rfa:"2025-201"},
+  {name:"Hope @ Debra Heights",county:"Alachua",lgaoFrom:"Gainesville",size:"M",prior2025:"Y",prior2024:"N",rfa:"2025-201"},
+  {name:"Sugg Redevelopment",county:"Manatee",lgaoFrom:"Bradenton",size:"M",prior2025:"N",prior2024:"N",rfa:"2025-201"},
+  {name:"Magnolia Senior",county:"Leon",lgaoFrom:"Tallahassee",size:"M",prior2025:"N",prior2024:"Y",rfa:"2025-201"},
+  {name:"Renaissance Hall Senior Living",county:"Collier",lgaoFrom:"Unincorporated Collier County",size:"M",prior2025:"Y",prior2024:"N",rfa:"2025-201"},
+  {name:"Madison Oaks West II",county:"Marion",lgaoFrom:"Ocala",size:"M",prior2025:"Y",prior2024:"N",rfa:"2025-201"},
+  {name:"Madison Cove",county:"Volusia",lgaoFrom:"Daytona Beach",size:"M",prior2025:"Y",prior2024:"Y",rfa:"2025-201"},
+  {name:"Pinnacle at Moore's Creek",county:"Saint Lucie",lgaoFrom:"Fort Pierce",size:"M",prior2025:"N",prior2024:"N",rfa:"2025-201"},
+  {name:"Warrington Senior Living",county:"Escambia",lgaoFrom:"Unincorporated Escambia County",size:"M",prior2025:"N",prior2024:"N",rfa:"2025-201"},
+  {name:"Bayside Gardens",county:"Okaloosa",lgaoFrom:"Fort Walton Beach",size:"M",prior2025:"Y",prior2024:"Y",rfa:"2025-201"},
+  {name:"The Beacon at Bayside",county:"Okaloosa",lgaoFrom:"Fort Walton Beach",size:"M",prior2025:"Y",prior2024:"Y",rfa:"2025-201"},
+  {name:"Autumn Palms North Port",county:"Sarasota",lgaoFrom:"North Port",size:"M",prior2025:"N",prior2024:"N",rfa:"2025-201"},
+  {name:"Clermont Ridge Senior Villas II",county:"Lake",lgaoFrom:"Clermont",size:"M",prior2025:"Y",prior2024:"Y",rfa:"2025-201"},
+  {name:"Eagle Village",county:"Manatee",lgaoFrom:"Bradenton",size:"M",prior2025:"N",prior2024:"N",rfa:"2025-201"},
+  {name:"Paramount Place",county:"Broward",lgaoFrom:"Fort Lauderdale",size:"L",rfa:"2024-202"},
+  {name:"Madison Terrace II",county:"Palm Beach",lgaoFrom:"West Palm Beach",size:"L",rfa:"2024-202"},
+  {name:"Lofts at Southbank",county:"Duval",lgaoFrom:"Jacksonville",size:"L",rfa:"2024-202"},
+  {name:"The Residences at Martin Manor II",county:"Palm Beach",lgaoFrom:"West Palm Beach",size:"L",rfa:"2024-202"},
+  {name:"Sailfish Pointe",county:"Palm Beach",lgaoFrom:"Riviera Beach",size:"L",rfa:"2024-202"},
+  {name:"Mahogany Ridge II",county:"Broward",lgaoFrom:"Lauderhill",size:"L",rfa:"2024-202"},
+  {name:"One Hampton Park",county:"Hillsborough",lgaoFrom:"Tampa",size:"L",rfa:"2024-202"},
+  {name:"Crescent Landing",county:"Pinellas",lgaoFrom:"St. Petersburg",size:"L",rfa:"2024-202"},
+  {name:"Residences at Lake Barton",county:"Orange",lgaoFrom:"Orlando",size:"L",rfa:"2025-202"},
+  {name:"Lois Lofts",county:"Hillsborough",lgaoFrom:"Tampa",size:"L",rfa:"2025-202"},
+  {name:"Bungalows at Norton Farms",county:"Polk",lgaoFrom:"Lakeland",size:"L",rfa:"2025-202"},
+  {name:"Autumn Palms Fort Myers",county:"Lee",lgaoFrom:"Fort Myers",size:"L",rfa:"2025-202"},
+  {name:"The View at Central City",county:"Broward",lgaoFrom:"Fort Lauderdale",size:"L",rfa:"2025-202"},
+  {name:"Ardent Run",county:"Hillsborough",lgaoFrom:"Tampa",size:"L",rfa:"2025-202"},
+  {name:"Legacy Crossing",county:"Palm Beach",lgaoFrom:"West Palm Beach",size:"L",rfa:"2025-202"},
 ];
-const FHFC_UNFUNDED_2024_202=[
-  {name:"Paramount Place",county:"Broward",lgaoFrom:"Fort Lauderdale",rfa:"2024-202"},
-  {name:"Madison Terrace II",county:"Palm Beach",lgaoFrom:"West Palm Beach",rfa:"2024-202"},
-  {name:"Lofts at Southbank",county:"Duval",lgaoFrom:"Jacksonville",rfa:"2024-202"},
-  {name:"The Residences at Martin Manor II",county:"Palm Beach",lgaoFrom:"West Palm Beach",rfa:"2024-202"},
-  {name:"Sailfish Pointe",county:"Palm Beach",lgaoFrom:"Riviera Beach",rfa:"2024-202"},
-  {name:"Mahogany Ridge II",county:"Broward",lgaoFrom:"Lauderhill",rfa:"2024-202"},
-  {name:"One Hampton Park",county:"Hillsborough",lgaoFrom:"Tampa",rfa:"2024-202"},
-  {name:"Crescent Landing",county:"Pinellas",lgaoFrom:"St. Petersburg",rfa:"2024-202"},
-];
-const FHFC_UNFUNDED_2025_202=[
-  {name:"Residences at Lake Barton",county:"Orange",lgaoFrom:"Orlando",rfa:"2025-202"},
-  {name:"Lois Lofts",county:"Hillsborough",lgaoFrom:"Tampa",rfa:"2025-202"},
-  {name:"Bungalows at Norton Farms",county:"Polk",lgaoFrom:"Lakeland",rfa:"2025-202"},
-  {name:"Autumn Palms Fort Myers",county:"Lee",lgaoFrom:"Fort Myers",rfa:"2025-202"},
-  {name:"The View at Central City",county:"Broward",lgaoFrom:"Fort Lauderdale",rfa:"2025-202"},
-  {name:"Ardent Run",county:"Hillsborough",lgaoFrom:"Tampa",rfa:"2025-202"},
-  {name:"Legacy Crossing",county:"Palm Beach",lgaoFrom:"West Palm Beach",rfa:"2025-202"},
-];
-const FHFC_UNFUNDED=[...FHFC_UNFUNDED_201,...FHFC_UNFUNDED_2024_202,...FHFC_UNFUNDED_2025_202];
 
 let deprioData=[
   {county:"Citrus",city:"Longwood Gardens",lgaoFrom:"Inverness",date:"2026-01-30",years:"2",notes:"Selected & funded RFA 2025-201 (2026-196C)"},
@@ -418,7 +388,7 @@ let deprioData=[
   {county:"Osceola",city:"Woodlock Manor Phase Two",lgaoFrom:"Unincorporated Osceola County",date:"2025-01-29",years:"1",notes:"Selected & funded RFA 2024-201 (2025-014C)"},
 ];
 
-let countyData={}, cityData=[], topoLoaded=null;
+let countyData={},cityData=[],topoLoaded=null;
 
 function seedFromFhfc(){
   countyData={};cityData=[];
@@ -473,7 +443,7 @@ function updateCards(){
 
 function sBadge(s){
   if(s==='yes') return'<span class="badge yes">Committed</span>';
-  if(s==='no') return'<span class="badge no">No activity</span>';
+  if(s==='no')  return'<span class="badge no">No activity</span>';
   return'<span class="badge na">No data</span>';
 }
 function pBadge(p){
@@ -501,11 +471,19 @@ function renderCountyTable(){
     const isD=depSet.has(norm(r.name));
     const sb=isD?'<span class="badge dep1">Deprioritized</span>':sBadge(r.rec.status);
     const fc=fhfcMap[norm(r.name)]||0;
-    const ft=fc?`<span class="badge fhfc" style="margin-left:4px">${fc} LGAO app${fc>1?'s':''}</span>`:'';
+    const ft=fc?`<span class="badge fhfc" style="margin-left:4px">${fc} app${fc>1?'s':''}</span>`:'';
     const fh=r.rec.flag==='yes'?'<span class="badge flag">Follow-up</span>':'—';
-    const fd=r.rec.followDate?`<br><span style="font-size:11px;color:var(--txt2)">${r.rec.followDate}</span>`:'';
-    const nt=r.rec.notes?`<span style="font-size:12px;color:var(--txt2)">${r.rec.notes}</span>`:'—';
-    return`<tr style="cursor:pointer" onclick="openDetailPanel('${r.name}')"><td style="color:var(--txt2);font-size:12px">${r.idx}</td><td style="font-weight:500">${r.name}${ft}</td><td>${r.rec.status==='yes'?'Yes':r.rec.status==='no'?'No':'—'}</td><td>${sb}</td><td>${pBadge(r.rec.priority)}</td><td>${fh}${fd}</td><td style="max-width:170px">${nt}</td><td><span style="font-size:11px;color:var(--txt2)">&#8250; details</span></td></tr>`;
+    const fd=r.rec.followDate?`<br><span style="font-size:11px;color:var(--color-text-secondary)">${r.rec.followDate}</span>`:'';
+    const nt=r.rec.notes?`<span style="font-size:12px;color:var(--color-text-secondary)">${r.rec.notes}</span>`:'—';
+    return`<tr class="clickable" onclick="openDetail('${r.name}')">
+      <td style="color:var(--color-text-secondary);font-size:12px">${r.idx}</td>
+      <td style="font-weight:500">${r.name}${ft}</td>
+      <td>${r.rec.status==='yes'?'Yes':r.rec.status==='no'?'No':'—'}</td>
+      <td>${sb}</td><td>${pBadge(r.rec.priority)}</td>
+      <td>${fh}${fd}</td>
+      <td style="max-width:160px">${nt}</td>
+      <td style="font-size:11px;color:var(--color-text-secondary)">› details</td>
+    </tr>`;
   }).join('');
 }
 
@@ -514,21 +492,21 @@ function renderCityTable(){
   const f=document.getElementById('cityFilt').value;
   const rows=cityData.filter(r=>(!q||(norm(r.county).includes(q)||norm(r.city).includes(q)))&&(f==='all'||(r.status||'')===f));
   document.getElementById('cityBody').innerHTML=!rows.length
-    ?'<tr><td colspan="6" style="padding:1rem;text-align:center;color:var(--txt2)">No entries.</td></tr>'
+    ?'<tr><td colspan="6" style="padding:1rem;text-align:center;color:var(--color-text-secondary)">No entries.</td></tr>'
     :rows.map((r,i)=>{
       const ft=r.fhfc?'<span class="badge fhfc" style="margin-left:4px">FHFC</span>':'';
-      const rm=r.fhfc?'<span style="font-size:11px;color:var(--txt2)">auto</span>':`<button class="btn sm" onclick="removeCityEntry(${i})">Remove</button>`;
-      return`<tr><td>${r.county}</td><td style="font-weight:500">${r.city}${ft}</td><td>${r.status==='yes'?'Yes':r.status==='no'?'No':'—'}</td><td>${sBadge(r.status)}</td><td style="font-size:12px;color:var(--txt2);max-width:160px">${r.notes||'—'}</td><td>${rm}</td></tr>`;
+      const rm=r.fhfc?'<span style="font-size:11px;color:var(--color-text-secondary)">auto</span>':`<button class="btn sm" onclick="removeCityEntry(${i})">Remove</button>`;
+      return`<tr><td>${r.county}</td><td style="font-weight:500">${r.city}${ft}</td><td>${r.status==='yes'?'Yes':r.status==='no'?'No':'—'}</td><td>${sBadge(r.status)}</td><td style="font-size:12px;color:var(--color-text-secondary);max-width:160px">${r.notes||'—'}</td><td>${rm}</td></tr>`;
     }).join('');
 }
 
 function renderDeprioTable(){
   const tb=document.getElementById('depBody');
-  if(!deprioData.length){tb.innerHTML='<tr><td colspan="8" style="padding:1rem;text-align:center;color:var(--txt2)">No entries.</td></tr>';return;}
+  if(!deprioData.length){tb.innerHTML='<tr><td colspan="8" style="padding:1rem;text-align:center;color:var(--color-text-secondary)">No entries.</td></tr>';return;}
   tb.innerHTML=deprioData.map((r,i)=>{
     const autoTag=r.notes&&r.notes.includes('Selected & funded')?'<span class="badge sel" style="margin-left:4px">Auto</span>':'';
     const lgaoFrom=r.lgaoFrom||(FHFC_SELECTED_LGAO.find(a=>norm(a.name)===norm(r.city||''))?.lgaoFrom)||'—';
-    return`<tr><td style="font-weight:500">${r.county}</td><td>${r.city||'—'}${autoTag}</td><td style="color:var(--txt2)">${lgaoFrom}</td><td style="font-size:12px">${awardFmt(r.date)}</td><td>${r.years==='1'?'<span class="badge dep1">1 year</span>':'<span class="badge dep2">2 years</span>'}</td><td style="font-size:12px;color:var(--txt2)">${reDate(r.date,r.years)}</td><td style="font-size:12px;color:var(--txt2);max-width:150px">${r.notes||'—'}</td><td><button class="btn sm" onclick="removeDeprioEntry(${i})">Remove</button></td></tr>`;
+    return`<tr><td style="font-weight:500">${r.county}</td><td>${r.city||'—'}${autoTag}</td><td style="color:var(--color-text-secondary)">${lgaoFrom}</td><td style="font-size:12px">${awardFmt(r.date)}</td><td>${r.years==='1'?'<span class="badge dep1">1 year</span>':'<span class="badge dep2">2 years</span>'}</td><td style="font-size:12px;color:var(--color-text-secondary)">${reDate(r.date,r.years)}</td><td style="font-size:12px;color:var(--color-text-secondary);max-width:140px">${r.notes||'—'}</td><td><button class="btn sm" onclick="removeDeprioEntry(${i})">Remove</button></td></tr>`;
   }).join('');
 }
 
@@ -538,7 +516,16 @@ function renderPriorityTable(){
   const rows=FL_COUNTIES.filter(c=>!SMALL_COUNTIES.has(c)).map((c,i)=>({idx:i+1,name:c,rec:countyData[norm(c)]||{}}))
     .filter(r=>!q||norm(r.name).includes(q))
     .filter(r=>f==='all'||(f==='flag'?r.rec.flag==='yes':String(r.rec.priority||'')===f));
-  document.getElementById('pBody').innerHTML=rows.map(r=>`<tr style="cursor:pointer" onclick="openDetailPanel('${r.name}')"><td style="color:var(--txt2);font-size:12px">${r.idx}</td><td style="font-weight:500">${r.name}</td><td>${sBadge(r.rec.status)}</td><td>${pBadge(r.rec.priority)}</td><td>${r.rec.flag==='yes'?'<span class="badge flag">Flagged</span>':'—'}</td><td style="font-size:12px;color:var(--txt2)">${r.rec.followDate||'—'}</td><td style="max-width:150px;font-size:12px;color:var(--txt2)">${r.rec.notes||'—'}</td><td><span style="font-size:11px;color:var(--txt2)">&#8250; details</span></td></tr>`).join('');
+  document.getElementById('pBody').innerHTML=rows.map(r=>`<tr class="clickable" onclick="openDetail('${r.name}')">
+    <td style="color:var(--color-text-secondary);font-size:12px">${r.idx}</td>
+    <td style="font-weight:500">${r.name}</td>
+    <td>${sBadge(r.rec.status)}</td>
+    <td>${pBadge(r.rec.priority)}</td>
+    <td>${r.rec.flag==='yes'?'<span class="badge flag">Flagged</span>':'—'}</td>
+    <td style="font-size:12px;color:var(--color-text-secondary)">${r.rec.followDate||'—'}</td>
+    <td style="max-width:140px;font-size:12px;color:var(--color-text-secondary)">${r.rec.notes||'—'}</td>
+    <td style="font-size:11px;color:var(--color-text-secondary)">› details</td>
+  </tr>`).join('');
 }
 
 function renderFhfcTable(){
@@ -552,20 +539,89 @@ function renderFhfcTable(){
     return true;
   });
   document.getElementById('fhfcBody').innerHTML=!rows.length
-    ?'<tr><td colspan="8" style="padding:1rem;text-align:center;color:var(--txt2)">No results.</td></tr>'
+    ?'<tr><td colspan="8" style="padding:1rem;text-align:center;color:var(--color-text-secondary)">No results.</td></tr>'
     :rows.map(r=>{
       const is202=r.rfa&&r.rfa.includes('202');
       const hp=r.prior2025==='Y'||r.prior2024==='Y';
-      const sizeBadge=is202
-        ?'<span class="badge na">Large</span>'
-        :`<span class="badge ${r.size==='M'?'new':'na'}">${r.size==='M'?'Medium':'Small'}</span>`;
+      const sizeBadge=r.size==='M'?'<span class="badge med">Medium</span>':'<span class="badge na">Large</span>';
       const tag=is202?'<span class="badge na">Single-cycle</span>':(hp?'<span class="badge dep1">Prior support</span>':'<span class="badge new">New this round</span>');
-      const y25=is202?'<span style="color:var(--txt2);font-size:11px">n/a</span>':(r.prior2025==='Y'?'<span class="badge yes">Yes</span>':'<span class="badge no">No</span>');
-      const y24=is202?'<span style="color:var(--txt2);font-size:11px">n/a</span>':(r.prior2024==='Y'?'<span class="badge yes">Yes</span>':'<span class="badge no">No</span>');
-      return`<tr><td style="font-weight:500">${r.name}</td><td>${r.county}</td><td style="color:var(--txt2)">${r.lgaoFrom}</td><td style="font-size:11px;color:var(--txt2)">${r.rfa||'—'}</td><td>${sizeBadge}</td><td>${y25}</td><td>${y24}</td><td>${tag} <span class="badge unfunded">Unfunded</span></td></tr>`;
+      const y25=is202?'<span style="color:var(--color-text-secondary);font-size:11px">n/a</span>':(r.prior2025==='Y'?'<span class="badge yes">Yes</span>':'<span class="badge no">No</span>');
+      const y24=is202?'<span style="color:var(--color-text-secondary);font-size:11px">n/a</span>':(r.prior2024==='Y'?'<span class="badge yes">Yes</span>':'<span class="badge no">No</span>');
+      return`<tr><td style="font-weight:500">${r.name}</td><td>${r.county}</td><td style="color:var(--color-text-secondary)">${r.lgaoFrom}</td><td style="font-size:11px;color:var(--color-text-secondary)">${r.rfa}</td><td>${sizeBadge}</td><td>${y25}</td><td>${y24}</td><td>${tag} <span class="badge unfunded">Unfunded</span></td></tr>`;
     }).join('');
 }
 
+// ── DETAIL PANEL ──────────────────────────────────────────────────────────────
+function openDetail(name){
+  const rec=countyData[norm(name)]||{};
+  const depSet=new Set(deprioData.filter(d=>!d.city||isUnincorp(d.lgaoFrom)).map(d=>norm(d.county)));
+  const isD=depSet.has(norm(name));
+  const status=isD?'Deprioritized':rec.status==='yes'?'LGAO Committed':rec.status==='no'?'No LGAO Activity':'No data';
+  document.getElementById('dpName').textContent=name+' County';
+  document.getElementById('dpStatus').textContent=status;
+  document.getElementById('dpEditBtn').onclick=()=>{closeDetail();openEditCounty(name);};
+  const fhfcApps=FHFC_UNFUNDED.filter(f=>norm(f.county)===norm(name));
+  const deprioApps=deprioData.filter(d=>norm(d.county)===norm(name));
+  const cityEntries=cityData.filter(c=>norm(c.county)===norm(name)&&!c.fhfc);
+  let h='';
+  if(fhfcApps.length){
+    h+=`<div class="dp-section"><div class="dp-section-label">LGAO applications on file</div>`;
+    fhfcApps.forEach(a=>{
+      const is202=a.rfa&&a.rfa.includes('202');
+      const hp=a.prior2025==='Y'||a.prior2024==='Y';
+      const tag=is202?'<span class="badge na" style="font-size:10px">Single-cycle</span>':(hp?'<span class="badge dep1" style="font-size:10px">Prior support</span>':'<span class="badge new" style="font-size:10px">New 2025</span>');
+      h+=`<div class="dp-card">
+        <div style="font-weight:500;font-size:13px;margin-bottom:4px">${a.name}</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:2px">LGAO from: <strong style="color:var(--color-text-primary)">${a.lgaoFrom}</strong></div>
+        <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:6px">RFA ${a.rfa} &nbsp;·&nbsp; ${a.size==='M'?'Medium':'Large'} county</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">${tag} <span class="badge unfunded" style="font-size:10px">Unfunded</span></div>
+      </div>`;
+    });
+    h+='</div>';
+  }
+  if(deprioApps.length){
+    h+=`<div class="dp-section"><div class="dp-section-label">Deprioritized</div>`;
+    deprioApps.forEach(d=>{
+      h+=`<div class="dp-card dep">
+        <div style="font-weight:500;font-size:13px;margin-bottom:4px">${d.city||'County-level'}</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:2px">LGAO from: <strong style="color:var(--color-text-primary)">${d.lgaoFrom||'—'}</strong></div>
+        <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:2px">Award: ${awardFmt(d.date)} &nbsp;·&nbsp; ${d.years}yr</div>
+        <div style="font-size:12px;color:var(--color-text-secondary)">Re-eligible: <strong style="color:var(--color-text-primary)">${reDate(d.date,d.years)}</strong></div>
+        ${d.notes?`<div style="font-size:11px;color:var(--color-text-secondary);margin-top:6px;font-style:italic">${d.notes}</div>`:''}
+      </div>`;
+    });
+    h+='</div>';
+  }
+  if(cityEntries.length){
+    h+=`<div class="dp-section"><div class="dp-section-label">City entries</div>`;
+    cityEntries.forEach(c=>{
+      h+=`<div class="dp-card">
+        <div style="font-weight:500;font-size:13px;margin-bottom:4px">${c.city}</div>
+        <div>${sBadge(c.status)}</div>
+        ${c.notes?`<div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px">${c.notes}</div>`:''}
+      </div>`;
+    });
+    h+='</div>';
+  }
+  if(rec.notes||rec.priority||rec.flag==='yes'){
+    h+=`<div class="dp-section"><div class="dp-section-label">Team notes</div>
+      <div class="dp-card">
+        ${rec.priority?`<div style="font-size:12px;margin-bottom:4px">Priority: <strong>${['','High','Medium','Low'][rec.priority]}</strong></div>`:''}
+        ${rec.flag==='yes'?`<div style="font-size:12px;margin-bottom:4px;color:#185FA5">&#128681; Follow-up flagged${rec.followDate?' — '+rec.followDate:''}</div>`:''}
+        ${rec.notes?`<div style="font-size:12px;color:var(--color-text-secondary)">${rec.notes}</div>`:''}
+      </div></div>`;
+  }
+  if(!h) h=`<div style="font-size:13px;color:var(--color-text-secondary);text-align:center;padding:2rem 0">No LGAO activity on file for ${name} County.</div>`;
+  document.getElementById('dpBody').innerHTML=h;
+  document.getElementById('detailPanel').style.display='block';
+  document.getElementById('detailOverlay').style.display='block';
+}
+function closeDetail(){
+  document.getElementById('detailPanel').style.display='none';
+  document.getElementById('detailOverlay').style.display='none';
+}
+
+// ── ACTIONS ────────────────────────────────────────────────────────────────────
 function addDeprioEntry(){
   const county=document.getElementById('depCounty').value;
   if(!county){alert('Please select a county.');return;}
@@ -581,7 +637,6 @@ function removeCityEntry(i){
   if(cityData[i]?.fhfc){alert('FHFC-sourced entries cannot be removed manually.');return;}
   cityData.splice(i,1);stampUpdated();renderCityTable();
 }
-
 function openAddCounty(){
   ['mCounty','mStatus','mPriority','mNotes'].forEach(id=>{document.getElementById(id).value='';});
   document.getElementById('mFlag').value='no';document.getElementById('mFollowDate').value='';
@@ -609,96 +664,8 @@ function saveCityEntry(){
   closeCityModal();stampUpdated();renderCityTable();
 }
 
-function openDetailPanel(name){
-  const rec=countyData[norm(name)]||{};
-  const depSet=new Set(deprioData.filter(d=>!d.city||isUnincorp(d.lgaoFrom)).map(d=>norm(d.county)));
-  const isD=depSet.has(norm(name));
-  const status=isD?'Deprioritized':rec.status==='yes'?'LGAO Committed':rec.status==='no'?'No LGAO Activity':'No data';
-
-  document.getElementById('dpCountyName').textContent=name+' County';
-  document.getElementById('dpCountyStatus').textContent=status;
-  document.getElementById('dpEditBtn').onclick=()=>{closeDetailPanel();openEditCounty(name);};
-
-  // Build panel content
-  const fhfcApps=FHFC_UNFUNDED.filter(f=>norm(f.county)===norm(name));
-  const deprioApps=deprioData.filter(d=>norm(d.county)===norm(name));
-  const cityEntries=cityData.filter(c=>norm(c.county)===norm(name)&&!c.fhfc);
-
-  let h='';
-
-  // LGAO applications on file
-  if(fhfcApps.length){
-    h+=`<div style="margin-bottom:1rem">
-      <div style="font-size:11px;font-weight:500;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">LGAO Applications on File</div>`;
-    fhfcApps.forEach(a=>{
-      const is202=a.rfa&&a.rfa.includes('202');
-      const hp=a.prior2025==='Y'||a.prior2024==='Y';
-      const tag=is202?'<span class="badge na" style="font-size:10px">Single-cycle</span>':(hp?'<span class="badge dep1" style="font-size:10px">Prior support</span>':'<span class="badge new" style="font-size:10px">New 2025</span>');
-      h+=`<div style="background:var(--bg2);border-radius:var(--rad);padding:10px 12px;margin-bottom:6px">
-        <div style="font-weight:500;font-size:13px;margin-bottom:4px">${a.name}</div>
-        <div style="font-size:12px;color:var(--txt2);margin-bottom:4px">LGAO from: <strong style="color:var(--txt)">${a.lgaoFrom}</strong></div>
-        <div style="font-size:12px;color:var(--txt2);margin-bottom:6px">RFA: ${a.rfa} &nbsp;|&nbsp; Size: ${is202?'Large':'Medium'}</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">${tag} <span class="badge unfunded" style="font-size:10px">Unfunded</span></div>
-      </div>`;
-    });
-    h+='</div>';
-  }
-
-  // Deprioritized entries
-  if(deprioApps.length){
-    h+=`<div style="margin-bottom:1rem">
-      <div style="font-size:11px;font-weight:500;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Deprioritized</div>`;
-    deprioApps.forEach(d=>{
-      h+=`<div style="background:var(--bg2);border-radius:var(--rad);padding:10px 12px;margin-bottom:6px;border-left:3px solid #EF9F27">
-        <div style="font-weight:500;font-size:13px;margin-bottom:4px">${d.city||'County-level'}</div>
-        <div style="font-size:12px;color:var(--txt2);margin-bottom:2px">LGAO from: <strong style="color:var(--txt)">${d.lgaoFrom||'—'}</strong></div>
-        <div style="font-size:12px;color:var(--txt2);margin-bottom:2px">Award date: ${d.date||'—'} &nbsp;|&nbsp; ${d.years} year${d.years==='1'?'':'s'}</div>
-        <div style="font-size:12px;color:var(--txt2)">Re-eligible: ${reDate(d.date,d.years)}</div>
-        ${d.notes?`<div style="font-size:11px;color:var(--txt2);margin-top:6px;font-style:italic">${d.notes}</div>`:''}
-      </div>`;
-    });
-    h+='</div>';
-  }
-
-  // Manual city entries
-  if(cityEntries.length){
-    h+=`<div style="margin-bottom:1rem">
-      <div style="font-size:11px;font-weight:500;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">City Entries</div>`;
-    cityEntries.forEach(c=>{
-      h+=`<div style="background:var(--bg2);border-radius:var(--rad);padding:10px 12px;margin-bottom:6px">
-        <div style="font-weight:500;font-size:13px">${c.city}</div>
-        <div style="font-size:12px;color:var(--txt2)">${c.status==='yes'?'<span class="badge yes">Committed</span>':'<span class="badge no">No activity</span>'}</div>
-        ${c.notes?`<div style="font-size:11px;color:var(--txt2);margin-top:4px">${c.notes}</div>`:''}
-      </div>`;
-    });
-    h+='</div>';
-  }
-
-  // Notes & priority
-  if(rec.notes||rec.priority||rec.flag==='yes'){
-    h+=`<div style="margin-bottom:1rem">
-      <div style="font-size:11px;font-weight:500;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Team Notes</div>
-      <div style="background:var(--bg2);border-radius:var(--rad);padding:10px 12px">
-        ${rec.priority?`<div style="font-size:12px;margin-bottom:4px">Priority: ${['','High','Medium','Low'][rec.priority]}</div>`:''}
-        ${rec.flag==='yes'?`<div style="font-size:12px;margin-bottom:4px;color:#185FA5">Flagged for follow-up${rec.followDate?' — '+rec.followDate:''}</div>`:''}
-        ${rec.notes?`<div style="font-size:12px;color:var(--txt2)">${rec.notes}</div>`:''}
-      </div>
-    </div>`;
-  }
-
-  if(!h) h=`<div style="font-size:13px;color:var(--txt2);text-align:center;padding:2rem 0">No LGAO activity on file for ${name} County.</div>`;
-
-  document.getElementById('dpBody').innerHTML=h;
-  document.getElementById('detailPanel').style.display='block';
-  document.getElementById('detailOverlay').style.display='block';
-}
-
-function closeDetailPanel(){
-  document.getElementById('detailPanel').style.display='none';
-  document.getElementById('detailOverlay').style.display='none';
-}
-
-
+// ── SNAPSHOT ────────────────────────────────────────────────────────────────
+function exportSnapshot(){
   const snap={version:3,exportedAt:new Date().toISOString(),countyData,cityData:cityData.filter(c=>!c.fhfc),deprioData};
   const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(snap,null,2));a.download='fl_lgao_snapshot_'+new Date().toISOString().slice(0,10)+'.json';a.click();
 }
@@ -713,62 +680,53 @@ document.getElementById('snapIn').addEventListener('change',e=>{
       seedFromFhfc();Object.assign(countyData,snap.countyData);
       const manual=(snap.cityData||[]).filter(c=>!c.fhfc);
       manual.forEach(mc=>{if(!cityData.some(c=>norm(c.county)===norm(mc.county)&&norm(c.city)===norm(mc.city)))cityData.push(mc);});
-      document.getElementById('luDisp').textContent='Snapshot imported: '+(snap.exportedAt?new Date(snap.exportedAt).toLocaleString():'unknown');
+      document.getElementById('luDisp').textContent='Snapshot imported';
       updateCards();renderCountyTable();renderCityTable();renderDeprioTable();renderPriorityTable();renderMap();
     }catch(err){alert('Could not parse snapshot.');}
   };
   rd.readAsText(f);e.target.value='';
 });
 
-function parseCSV(text,mode){
-  const lines=text.trim().split('\n');
-  const hdr=lines[0].toLowerCase().replace(/\r/,'').split(',').map(s=>s.trim());
-  const ci=hdr.indexOf('county'),li=hdr.indexOf('lgao_committed'),ni=hdr.indexOf('notes');
-  if(ci<0||li<0){alert('CSV must have "county" and "lgao_committed" columns.');return;}
-  if(mode==='county'){
-    lines.slice(1).forEach(line=>{const cols=line.replace(/\r/,'').split(',');const c=norm(cols[ci]||''),v=norm(cols[li]||''),n=ni>=0?(cols[ni]||'').trim():'';if(c)countyData[c]={...(countyData[c]||{}),status:v,notes:n};});
-    stampUpdated();updateCards();renderCountyTable();renderPriorityTable();renderMap();
-  } else {
-    const cti=hdr.indexOf('city');if(cti<0){alert('City CSV must have a "city" column.');return;}
+document.getElementById('dlCityTpl').addEventListener('click',e=>{e.preventDefault();const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,county,city,lgao_committed,notes\nAlachua,Gainesville,yes,Closed 2023';a.download='lgao_city_template.csv';a.click();});
+document.getElementById('cityFileIn').addEventListener('change',e=>{
+  const f=e.target.files[0];if(!f)return;
+  const rd=new FileReader();rd.onload=ev=>{
+    const lines=ev.target.result.trim().split('\n');
+    const hdr=lines[0].toLowerCase().replace(/\r/,'').split(',').map(s=>s.trim());
+    const ci=hdr.indexOf('county'),cti=hdr.indexOf('city'),li=hdr.indexOf('lgao_committed'),ni=hdr.indexOf('notes');
+    if(ci<0||cti<0||li<0){alert('CSV must have county, city, lgao_committed columns.');return;}
     lines.slice(1).forEach(line=>{const cols=line.replace(/\r/,'').split(',');const county=(cols[ci]||'').trim(),city=(cols[cti]||'').trim(),v=norm(cols[li]||''),n=ni>=0?(cols[ni]||'').trim():'';if(county&&city)cityData.push({county,city,status:v,notes:n,fhfc:false});});
     stampUpdated();renderCityTable();
-  }
-}
+  };rd.readAsText(f);
+});
+
 function exportCSV(){
   const depSet=new Set(deprioData.filter(d=>!d.city||isUnincorp(d.lgaoFrom)).map(d=>norm(d.county)));
   const rows=[['County','LGAO Committed','Status','Priority','Follow-up Flag','Follow-up Date','Notes']];
   FL_COUNTIES.forEach(c=>{const r=countyData[norm(c)]||{};const st=depSet.has(norm(c))?'Deprioritized':r.status==='yes'?'Committed':r.status==='no'?'No Activity':'No data';rows.push([c,r.status||'unknown',st,r.priority||'',r.flag||'no',r.followDate||'',r.notes||'']);});
-  dl(rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n'),'fl_lgao_gaps.csv');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n'));a.download='fl_lgao_gaps.csv';a.click();
 }
 function exportPriorityCSV(){
   const rows=[['County','LGAO Status','Priority','Flagged','Follow-up Date','Notes']];
   FL_COUNTIES.forEach(c=>{const r=countyData[norm(c)]||{};rows.push([c,r.status||'unknown',r.priority||'',r.flag||'no',r.followDate||'',r.notes||'']);});
-  dl(rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n'),'fl_lgao_priority.csv');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n'));a.download='fl_lgao_priority.csv';a.click();
 }
-function dl(csv,name){const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download=name;a.click();}
 
-document.getElementById('dlTpl').addEventListener('click',e=>{e.preventDefault();dl('county,lgao_committed,notes\nAlachua,yes,Loan closed 2023\nBaker,no,No activity','lgao_county_template.csv');});
-document.getElementById('dlCityTpl').addEventListener('click',e=>{e.preventDefault();dl('county,city,lgao_committed,notes\nAlachua,Gainesville,yes,Closed 2023','lgao_city_template.csv');});
-document.getElementById('fileIn').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>parseCSV(ev.target.result,'county');r.readAsText(f);});
-document.getElementById('cityFileIn').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>parseCSV(ev.target.result,'city');r.readAsText(f);});
-const dz=document.getElementById('dropZone');
-dz.addEventListener('dragover',e=>{e.preventDefault();dz.style.background='var(--bg2)';});
-dz.addEventListener('dragleave',()=>{dz.style.background='';});
-dz.addEventListener('drop',e=>{e.preventDefault();dz.style.background='';const f=e.dataTransfer.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>parseCSV(ev.target.result,'county');r.readAsText(f);});
-
+// ── MAP ─────────────────────────────────────────────────────────────────────
 function getCountyMapColor(name){
-  if(SMALL_COUNTIES.has(name)) return window.matchMedia('(prefers-color-scheme:dark)').matches?'#2c2c2a':'#D3D1C7';
+  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
+  if(SMALL_COUNTIES.has(name)) return isDark?'#2c2c2a':'#D3D1C7';
   const rec=countyData[norm(name)]||{};
   const isCD=deprioData.some(d=>norm(d.county)===norm(name)&&(!d.city||isUnincorp(d.lgaoFrom)));
   if(isCD) return '#EF9F27';
   if(rec.flag==='yes') return '#378ADD';
   if(rec.status==='yes') return '#1D9E75';
   if(rec.status==='no') return '#D85A30';
-  return window.matchMedia('(prefers-color-scheme:dark)').matches?'#444441':'#B4B2A9';
+  return isDark?'#444441':'#B4B2A9';
 }
 
 function buildTooltip(name){
-  if(SMALL_COUNTIES.has(name)) return`<div class="tt-header"><div class="tt-county">${name} County</div></div><div class="tt-body"><div class="tt-row"><span>FHFC designation</span><strong style="color:#9aa3b8">Small county</strong></div><div style="margin-top:4px;font-size:11px;color:#9aa3b8;font-style:italic">Not a target market — LGAO not tracked for small counties.</div></div>`;
+  if(SMALL_COUNTIES.has(name)) return`<div class="tt-header"><div class="tt-county">${name} County</div></div><div class="tt-body"><div class="tt-row"><span>FHFC designation</span><strong style="color:#9aa3b8">Small county</strong></div><div style="margin-top:4px;font-size:11px;color:#9aa3b8;font-style:italic">Not a target market — LGAO not tracked.</div></div>`;
   const rec=countyData[norm(name)]||{};
   const cDE=deprioData.filter(d=>norm(d.county)===norm(name)&&(!d.city||isUnincorp(d.lgaoFrom)));
   const cdE=deprioData.filter(d=>norm(d.county)===norm(name)&&d.city&&!isUnincorp(d.lgaoFrom));
@@ -795,7 +753,7 @@ function buildTooltip(name){
   if(fu.length||mc.length){
     h+='<div class="tt-dep">';
     if(fu.length) h+=`<div style="color:#a78bfa"><strong style="color:#c4b5fd">${fu.length} LGAO app${fu.length>1?'s':''} on file:</strong> ${fu.map(f=>f.name).join(', ')}</div>`;
-    if(mc.length){const mn=mc.filter(c=>c.status==='no').length,my=mc.filter(c=>c.status==='yes').length;h+=`<div style="margin-top:3px">${mc.length} manual entr${mc.length===1?'y':'ies'}: <span style="color:#4ade80">${my} committed</span>, <span style="color:#f87171">${mn} missing</span></div>`;}
+    if(mc.length){const mn=mc.filter(c=>c.status==='no').length,my=mc.filter(c=>c.status==='yes').length;h+=`<div style="margin-top:3px">${mc.length} city entr${mc.length===1?'y':'ies'}: <span style="color:#4ade80">${my} committed</span>, <span style="color:#f87171">${mn} missing</span></div>`;}
     h+='</div>';
   }
   h+='</div>';return h;
@@ -805,11 +763,11 @@ const ttBox=document.getElementById('ttBox');
 
 function renderMap(){
   const mapEl=document.getElementById('map');mapEl.innerHTML='';
-  const w=mapEl.offsetWidth||700,h=Math.round(w*.55);
+  const w=mapEl.offsetWidth||600,h=Math.round(w*.55);
   const svg=d3.select('#map').append('svg').attr('viewBox',`0 0 ${w} ${h}`).attr('width','100%');
   const proj=d3.geoMercator().center([-81.5,27.8]).scale(w*4.2).translate([w/2,h/2]);
   const path=d3.geoPath(proj);
-  const isDark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  const isDark=matchMedia('(prefers-color-scheme:dark)').matches;
   const draw=()=>{
     const counties=topojson.feature(topoLoaded,topoLoaded.objects.counties);
     const flF=counties.features.filter(f=>String(f.id).padStart(5,'0').startsWith('12'));
@@ -839,11 +797,11 @@ function renderMap(){
       .on('mouseleave',()=>{ttBox.style.display='none';});
   };
   if(topoLoaded){draw();}
-  else{d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json').then(us=>{topoLoaded=us;draw();}).catch(()=>{mapEl.innerHTML='<p style="padding:1rem;font-size:13px;color:var(--txt2)">Map unavailable.</p>';});}
+  else{d3.json('https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json').then(us=>{topoLoaded=us;draw();}).catch(()=>{mapEl.innerHTML='<p style="padding:1rem;font-size:13px;color:var(--color-text-secondary)">Map unavailable.</p>';});}
 }
 
 // ── GOOGLE DRIVE ──────────────────────────────────────────────────────────────
-function gdSetStatus(msg,color='#888780'){const el=document.getElementById('gdStatus');if(el){el.textContent=msg;el.style.color=color;}}
+function gdSetStatus(msg,color='var(--color-text-secondary)'){const el=document.getElementById('gdStatus');if(el){el.textContent=msg;el.style.color=color;}}
 function gdInit(){
   if(GD_CLIENT_ID==='YOUR_CLIENT_ID_HERE'){gdSetStatus('Add your Google Client ID to enable Drive sync','#BA7517');return;}
   const s1=document.createElement('script');s1.src='https://accounts.google.com/gsi/client';
@@ -868,9 +826,7 @@ async function gdGetOrCreateFolder(){
   const c=await gapi.client.drive.files.create({resource:{name:GD_FOLDER_NAME,mimeType:'application/vnd.google-apps.folder'},fields:'id'});
   return c.result.id;
 }
-
-
-  if(GD_CLIENT_ID==='YOUR_CLIENT_ID_HERE'){gdSetStatus('Add your Google Client ID first','#BA7517');return;}
+async function gdSave(){
   if(!gdReady){gdTokenClient.requestAccessToken();return;}
   gdSetStatus('Saving...');
   try{
@@ -895,14 +851,13 @@ async function gdGetOrCreateFolder(){
   }catch(e){gdSetStatus('Save failed: '+e.message,'#D85A30');}
 }
 async function gdLoad(){
-  if(GD_CLIENT_ID==='YOUR_CLIENT_ID_HERE'){gdSetStatus('Add your Google Client ID first','#BA7517');return;}
   if(!gdReady){gdTokenClient.requestAccessToken();return;}
   gdSetStatus('Loading...');
   try{
     const folderId=await gdGetOrCreateFolder();
     const q=`name='${GD_FILE_NAME}' and '${folderId}' in parents and trashed=false`;
     const list=await gapi.client.drive.files.list({q,fields:'files(id,modifiedTime)',spaces:'drive',orderBy:'modifiedTime desc'});
-    if(!list.result.files.length){gdSetStatus('No saved data found yet. Save first.','#BA7517');return;}
+    if(!list.result.files.length){gdSetStatus('No saved data yet. Save first.','#BA7517');return;}
     gdFileId=list.result.files[0].id;
     const resp=await fetch(`https://www.googleapis.com/drive/v3/files/${gdFileId}?alt=media`,{headers:{Authorization:'Bearer '+gdAccessToken}});
     const snap=await resp.json();
@@ -911,96 +866,12 @@ async function gdLoad(){
     seedFromFhfc();Object.assign(countyData,snap.countyData);
     const manual=(snap.cityData||[]).filter(c=>!c.fhfc);
     manual.forEach(mc=>{if(!cityData.some(c=>norm(c.county)===norm(mc.county)&&norm(c.city)===norm(mc.city)))cityData.push(mc);});
-    document.getElementById('luDisp').textContent='Loaded from Drive: '+(snap.exportedAt?new Date(snap.exportedAt).toLocaleString():'unknown');
+    document.getElementById('luDisp').textContent='Loaded from Drive: '+new Date(list.result.files[0].modifiedTime).toLocaleString();
     updateCards();renderCountyTable();renderCityTable();renderDeprioTable();renderPriorityTable();renderMap();
-    gdSetStatus('Loaded from Drive ✓ — saved '+new Date(list.result.files[0].modifiedTime).toLocaleString(),'#1D9E75');
+    gdSetStatus('Loaded from Drive ✓','#1D9E75');
   }catch(e){gdSetStatus('Load failed: '+e.message,'#D85A30');}
-}
-
-// ── AUTO-SAVE: debounced silent save after every change ───────────────────────
-let gdAutoSaveTimer=null;
-function scheduleAutoSave(){
-  if(!gdReady) return;
-  clearTimeout(gdAutoSaveTimer);
-  gdAutoSaveTimer=setTimeout(async()=>{
-    try{
-      const snap=JSON.stringify({version:3,exportedAt:new Date().toISOString(),countyData,cityData:cityData.filter(c=>!c.fhfc),deprioData},null,2);
-      const folderId=await gdGetOrCreateFolder();
-      const q=`name='${GD_FILE_NAME}' and '${folderId}' in parents and trashed=false`;
-      const existing=await gapi.client.drive.files.list({q,fields:'files(id)',spaces:'drive'});
-      const blob=new Blob([snap],{type:'application/json'});
-      const form=new FormData();
-      if(existing.result.files.length>0){
-        const fid=existing.result.files[0].id;
-        form.append('metadata',new Blob([JSON.stringify({name:GD_FILE_NAME})],{type:'application/json'}));
-        form.append('file',blob);
-        await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fid}?uploadType=multipart`,{method:'PATCH',headers:{Authorization:'Bearer '+gdAccessToken},body:form});
-      } else {
-        form.append('metadata',new Blob([JSON.stringify({name:GD_FILE_NAME,parents:[folderId]})],{type:'application/json'}));
-        form.append('file',blob);
-        await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{Authorization:'Bearer '+gdAccessToken},body:form});
-      }
-      gdSetStatus('Auto-saved ✓ — '+new Date().toLocaleTimeString(),'#1D9E75');
-    }catch(e){ gdSetStatus('Auto-save failed: '+e.message,'#D85A30'); }
-  }, 2000); // 2 second debounce
-}
-
-// Patch all state-mutating functions to trigger auto-save
-const _saveCountyEntry=saveCountyEntry;
-saveCountyEntry=function(){_saveCountyEntry();scheduleAutoSave();};
-const _addDeprioEntry=addDeprioEntry;
-addDeprioEntry=function(){_addDeprioEntry();scheduleAutoSave();};
-const _removeDeprioEntry=removeDeprioEntry;
-removeDeprioEntry=function(i){_removeDeprioEntry(i);scheduleAutoSave();};
-const _saveCityEntry=saveCityEntry;
-saveCityEntry=function(){_saveCityEntry();scheduleAutoSave();};
-const _removeCityEntry=removeCityEntry;
-removeCityEntry=function(i){_removeCityEntry(i);scheduleAutoSave();};
-
-// ── AUTO-LOAD: load from Drive immediately on page open ───────────────────────
-function gdAutoLoad(){
-  if(GD_CLIENT_ID==='YOUR_CLIENT_ID_HERE') return;
-  // Wait for gapi to be ready, then silently sign in and load
-  const tryLoad=()=>{
-    if(!gdTokenClient){ setTimeout(tryLoad,500); return; }
-    // Use a prompt-free token request — will silently succeed if already signed in
-    gdTokenClient.requestAccessToken({prompt:''});
-    // gdTokenClient callback sets gdReady and calls nothing — we hook in separately
-    const origCallback=gdTokenClient.callback;
-    gdTokenClient.callback=(resp)=>{
-      origCallback && origCallback(resp);
-      if(!resp.error && gdReady){
-        // Auto-load silently
-        (async()=>{
-          try{
-            gdSetStatus('Syncing with Drive...','#BA7517');
-            const folderId=await gdGetOrCreateFolder();
-            const q=`name='${GD_FILE_NAME}' and '${folderId}' in parents and trashed=false`;
-            const list=await gapi.client.drive.files.list({q,fields:'files(id,modifiedTime)',spaces:'drive',orderBy:'modifiedTime desc'});
-            if(!list.result.files.length){ gdSetStatus('No Drive data yet — ready to save','#888780'); return; }
-            const fid=list.result.files[0].id;
-            const r=await fetch(`https://www.googleapis.com/drive/v3/files/${fid}?alt=media`,{headers:{Authorization:'Bearer '+gdAccessToken}});
-            const snap=await r.json();
-            if(!snap.countyData){ gdSetStatus('Drive data unreadable','#D85A30'); return; }
-            countyData=snap.countyData||{};deprioData=snap.deprioData||[];
-            seedFromFhfc();Object.assign(countyData,snap.countyData);
-            const manual=(snap.cityData||[]).filter(c=>!c.fhfc);
-            manual.forEach(mc=>{if(!cityData.some(c=>norm(c.county)===norm(mc.county)&&norm(c.city)===norm(mc.city)))cityData.push(mc);});
-            document.getElementById('luDisp').textContent='Synced from Drive: '+(snap.exportedAt?new Date(snap.exportedAt).toLocaleString():'unknown');
-            updateCards();renderCountyTable();renderCityTable();renderDeprioTable();renderPriorityTable();renderMap();
-            gdSetStatus('Synced from Drive ✓','#1D9E75');
-          }catch(e){ gdSetStatus('Auto-load failed: '+e.message,'#D85A30'); }
-        })();
-      }
-    };
-  };
-  setTimeout(tryLoad, 1500);
 }
 
 gdInit();
 updateCards();renderCountyTable();renderCityTable();renderDeprioTable();renderPriorityTable();renderFhfcTable();renderMap();
-// Trigger auto-load after Drive initialises
-setTimeout(gdAutoLoad, 2000);
 </script>
-</body>
-</html>
