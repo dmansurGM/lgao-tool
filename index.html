@@ -178,7 +178,7 @@ tbody td{padding:7px 8px;vertical-align:middle}
   <button class="tab"     data-tab="cities">City breakdown</button>
   <button class="tab"     data-tab="deprio">Deprioritized</button>
   <button class="tab"     data-tab="priority">Priority &amp; follow-up</button>
-  <button class="tab"     data-tab="fhfc">FHFC unfunded <span id="fhfcCnt" style="font-size:10px;background:#EEEDFE;color:#3C3489;border-radius:9px;padding:1px 5px;margin-left:3px">34</span></button>
+  <button class="tab"     data-tab="fhfc">FHFC unfunded <span id="fhfcCnt" style="font-size:10px;background:#EEEDFE;color:#3C3489;border-radius:9px;padding:1px 5px;margin-left:3px">51</span></button>
 </div>
 
 <!-- ═══ OVERVIEW ═══ -->
@@ -397,7 +397,7 @@ tbody td{padding:7px 8px;vertical-align:middle}
 
 <!-- ═══ FHFC UNFUNDED ═══ -->
 <div class="panel" id="p-fhfc">
-  <div class="note"><strong>RFA 2024-201, 2025-201, 2024-202, 2025-202.</strong> Funded/selected developments excluded. 202-series show n/a for continuation columns.</div>
+  <div class="note"><strong>RFA 2024-201, 2025-201, 2024-202, 2025-202.</strong> Funded/selected developments excluded. 202-series show n/a for continuation columns. <strong>★ GM</strong> = Green Mills Group submission.</div>
   <div class="ctrls">
     <input type="text" id="fSrch" placeholder="Search development or county…" oninput="renderFhfc()">
     <select id="fFilt" onchange="renderFhfc()">
@@ -407,6 +407,9 @@ tbody td{padding:7px 8px;vertical-align:middle}
       <option value="both">Resubmitted (both rounds)</option>
       <option value="2025only">2025-201 only</option>
       <option value="2024only">2024-201 only</option>
+      <option value="2025-202">2025-202 only</option>
+      <option value="2024-202">2024-202 only</option>
+      <option value="gm">Green Mills only</option>
     </select>
   </div>
   <div class="tw"><table>
@@ -581,12 +584,31 @@ const FHFC_UF=[
   {name:"United Commons",county:"Polk",lgaoFrom:"Bartow",size:"M",y25:"N",y24:"Y"},
   {name:"Warrington Senior Living",county:"Escambia",lgaoFrom:"Unincorporated Escambia County",size:"M",y25:"Y",y24:"N"},
   {name:"Westside Phase II",county:"Volusia",lgaoFrom:"New Smyrna Beach",size:"M",y25:"Y",y24:"Y"},
-  {name:"Sailfish Pointe",county:"Palm Beach",lgaoFrom:"Riviera Beach",size:"L",is202:true},
-  {name:"Mahogany Ridge II",county:"Broward",lgaoFrom:"Lauderhill",size:"L",is202:true},
-  {name:"One Hampton Park",county:"Hillsborough",lgaoFrom:"Tampa",size:"L",is202:true},
-  {name:"Crescent Landing",county:"Pinellas",lgaoFrom:"St. Petersburg",size:"L",is202:true},
-  {name:"Ardent Run",county:"Hillsborough",lgaoFrom:"Tampa",size:"L",is202:true},
-  {name:"Legacy Crossing",county:"Palm Beach",lgaoFrom:"West Palm Beach",size:"L",is202:true}
+  // ── RFA 2024-202 (unfunded, carried over) ──
+  {name:"Sailfish Pointe",county:"Palm Beach",lgaoFrom:"Riviera Beach",size:"L",is202:true,rfa202:"2024-202"},
+  {name:"Mahogany Ridge II",county:"Broward",lgaoFrom:"Lauderhill",size:"L",is202:true,rfa202:"2024-202"},
+  {name:"One Hampton Park",county:"Hillsborough",lgaoFrom:"Tampa",size:"L",is202:true,rfa202:"2024-202"},
+  {name:"Crescent Landing",county:"Pinellas",lgaoFrom:"St. Petersburg",size:"L",is202:true,rfa202:"2024-202"},
+  {name:"Ardent Run",county:"Hillsborough",lgaoFrom:"Tampa",size:"L",is202:true,rfa202:"2024-202"},
+  {name:"Legacy Crossing",county:"Palm Beach",lgaoFrom:"West Palm Beach",size:"L",is202:true,rfa202:"2024-202"},
+  // ── RFA 2025-202 (submitted, results pending) ──
+  {name:"Pinnacle on Sixth",county:"Palm Beach",lgaoFrom:"Lake Worth Beach",size:"L",is202:true,rfa202:"2025-202"},
+  {name:"Peace Village",county:"Palm Beach",lgaoFrom:"Unincorporated Palm Beach County",size:"L",is202:true,rfa202:"2025-202",gm:true},
+  {name:"Isaiah Clark Apartments",county:"Palm Beach",lgaoFrom:"West Palm Beach",size:"L",is202:true,rfa202:"2025-202"},
+  {name:"Hillcrest Village",county:"Broward",lgaoFrom:"Hollywood",size:"L",is202:true,rfa202:"2025-202"},
+  {name:"Pinnacle at Cypress, Phase 2",county:"Broward",lgaoFrom:"Fort Lauderdale",size:"L",is202:true,rfa202:"2025-202"},
+  {name:"Pinnacle at Audubon Place",county:"Broward",lgaoFrom:"Hallandale Beach",size:"L",is202:true,rfa202:"2025-202"},
+  {name:"Gateway Lofts",county:"Broward",lgaoFrom:"Plantation",size:"L",is202:true,rfa202:"2025-202",gm:true},
+  {name:"Residences at Cross Creek",county:"Broward",lgaoFrom:"Pompano Beach",size:"L",is202:true,rfa202:"2025-202"},
+  {name:"Grand Oaks",county:"Pinellas",lgaoFrom:"Unincorporated Pinellas County",size:"L",is202:true,rfa202:"2025-202"},
+  {name:"Blue Fort Harrison",county:"Pinellas",lgaoFrom:"Clearwater",size:"L",is202:true,rfa202:"2025-202"},
+  {name:"Wimbish Court",county:"Pinellas",lgaoFrom:"St. Petersburg",size:"L",is202:true,rfa202:"2025-202"},
+  {name:"Hillcrest Reserve",county:"Polk",lgaoFrom:"Winter Haven",size:"L",is202:true,rfa202:"2025-202"},
+  {name:"Destiny Place",county:"Polk",lgaoFrom:"Winter Haven",size:"L",is202:true,rfa202:"2025-202"},
+  {name:"Grove Manor Phase III",county:"Polk",lgaoFrom:"Lake Wales",size:"L",is202:true,rfa202:"2025-202"},
+  {name:"Twin Lakes Estates - Phase III",county:"Polk",lgaoFrom:"Lakeland",size:"L",is202:true,rfa202:"2025-202"},
+  {name:"PHX Apartments",county:"Duval",lgaoFrom:"Jacksonville",size:"L",is202:true,rfa202:"2025-202"},
+  {name:"Southward Village CNI Phase 3",county:"Lee",lgaoFrom:"Fort Myers",size:"L",is202:true,rfa202:"2025-202"}
 ];
 
 let DEPRIO=[
@@ -932,15 +954,20 @@ function renderFhfc(){
     if(f==='both')return !r.is202&&r.y25==='Y'&&r.y24==='Y';
     if(f==='2025only')return !r.is202&&r.y25==='Y'&&r.y24==='N';
     if(f==='2024only')return !r.is202&&r.y25==='N'&&r.y24==='Y';
+    if(f==='2025-202')return r.is202&&r.rfa202==='2025-202';
+    if(f==='2024-202')return r.is202&&r.rfa202==='2024-202';
+    if(f==='gm')return r.gm===true;
     return true;
   });
   document.getElementById('fhfcBody').innerHTML=rows.length?rows.map(r=>{
     const sz=r.size==='M'?'<span class="b b-med">Medium</span>':'<span class="b b-na">Large</span>';
     const both=!r.is202&&r.y25==='Y'&&r.y24==='Y';
-    const tag=r.is202?'<span class="b b-na">Single-cycle</span>':both?'<span class="b b-dep">Resubmitted</span>':'<span class="b b-new">Single round</span>';
+    const rfaTag=r.rfa202?`<span class="b b-na" style="font-size:10px">${r.rfa202}</span>`:null;
+    const gmTag=r.gm?'<span class="b b-sel" style="font-size:10px">★ GM</span>':'';
+    const tag=r.is202?(rfaTag||'<span class="b b-na">202-series</span>'):both?'<span class="b b-dep">Resubmitted</span>':'<span class="b b-new">Single round</span>';
     const y25=r.is202?'<span style="color:var(--tx2);font-size:11px">n/a</span>':(r.y25==='Y'?'<span class="b b-yes">Yes</span>':'<span class="b b-no">No</span>');
     const y24=r.is202?'<span style="color:var(--tx2);font-size:11px">n/a</span>':(r.y24==='Y'?'<span class="b b-yes">Yes</span>':'<span class="b b-no">No</span>');
-    return`<tr><td style="font-weight:500">${r.name}</td><td>${r.county}</td><td style="color:var(--tx2)">${r.lgaoFrom}</td><td>${sz}</td><td>${y25}</td><td>${y24}</td><td>${tag} <span class="b b-unfunded">Unfunded</span></td></tr>`;
+    return`<tr><td style="font-weight:500">${r.name}${gmTag}</td><td>${r.county}</td><td style="color:var(--tx2)">${r.lgaoFrom}</td><td>${sz}</td><td>${y25}</td><td>${y24}</td><td>${tag} <span class="b b-unfunded">Unfunded</span></td></tr>`;
   }).join(''):'<tr><td colspan="7" style="padding:1rem;text-align:center;color:var(--tx2)">No results.</td></tr>';
 }
 
